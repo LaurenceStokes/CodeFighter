@@ -1,0 +1,207 @@
+<!-- views/multiplayer.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="img/favicon.ico">
+        <title>Multiplayer Challenge</title>
+        
+        <!--Script for the ACE editor plugin -->
+        <style type="text/css" media="screen">
+        .editor{
+            height: 55em;
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        }
+        </style>
+        
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <!-- My Custom CSS -->
+        <link href="css/codewar_styles.css" rel="stylesheet" media="screen">
+        <!-- ACE editor -->
+        <script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+        
+        <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+        <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+        <script src="public/js/ie-emulation-modes-warning.js"></script>
+        
+        <script>
+            window.userId = '<%= user._id %>';
+        </script>
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    
+    <body>
+        <!--Navbar -->
+        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a class="main-logo pull-left" href="/">CodeFighter</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <form class="navbar-form navbar-right" role="form">
+                        <a href="/logout" class="btn btn-danger navbarbtn"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+                    </form>
+                    </div><!--/.navbar-collapse -->
+                </div>
+                </div><!-- End navbar -->
+                <!-- Main Content -->
+                <div class="container container-profile">
+                    
+                    <div class="finding-challenger">Finding Challenger
+                        <img class="img-responsive img-rounded" src="img/loadinggif.gif">
+                    </div>
+                    <!-- Example row of columns -->
+                    <div class="challenge">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <h2>Your challenge:</h2>
+                                <p class="challenge-description">Write a function, called 'test', that takes two explicit parameters, 'a' and 'b' and returns the result of 'a * b'</p>
+
+                                </br></br>
+                            </div>
+                            <div class="col-lg-6">
+                                <h2>Your Code:</h2>
+                                </br>
+                                <div class="editor" id="editor">/**
+                                    function that takes two explicit parameters, 'a' and 'b'
+                                    and returns the result of 'a * b'
+                                    **/
+                                    function test(a, b) {
+                                    "Type your logic here"
+                                }</div>
+                                
+                                <div class="row"><!--inner row-->
+                                <div class="col-lg-12">
+                                    </br>
+                                    <a class="btn btn-danger submit-code" data-toggle="modal" href="#answerModal">Check my Code!</a>
+                                    </br>&nbsp;
+                                    <p id="mp-timer">Elapsed Time: 0Hours 0Min 0Sec</p>
+                                    </br>
+                                </div>
+                                </div> <!--inner row-->
+                            </div>
+                            
+                            <div class="col-lg-6 border-left">
+                                <h2>Your Challenger's Code:</h2>
+                                </br>
+                                <div class="editor" id="challenger">/**
+                                    function that takes two explicit parameters, 'a' and 'b'
+                                    and returns the result of 'a * b'
+                                    **/
+                                    function test(a, b) {
+                                    "Type your logic here"
+                                }</div>
+                            </div>
+                            
+                        </div>
+                        <!-- /.row -->
+                        
+                        <!-- Footer -->
+                        <footer class="main-footer">
+                            <hr/>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <img class="th-logo" src="img/logoblack.png" alt="logo">
+                                    <p>
+                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                                    </p>
+                                    <p class="copyright">&copy; 2013 CodeFighter, Inc.</p>
+                                </div>
+                                <div class="col-sm-4 col-sm-offset-1 col-md-offset-2">
+                                    <ul class="link-list">
+                                        <li class="heading"><a href="#">Legal&rarr;</a></li>
+                                        <li><a href="#">About CodeFighter</a></li>
+                                        <li><a href="#">Privacy Policy</a></li>
+                                        <li><a href="#">Terms &amp; Conditions</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-2">
+                                    <ul class="link-list">
+                                        <li class="heading"><a href="#">Get in touch &rarr;</a></li>
+                                        <li><a href="#">hi@codefighter.com</a></li>
+                                        <li>0723506020</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            </footer><!-- End footer -->
+                        </div>
+                        </div><!-- End Main Content -->
+                        
+                        <!-- Modal Popup for Examples-->
+                        <div class="modal fade" id="answerModal">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="returnToEditor(editor)">&times;</button>
+                                        <h4 class="modal-title" id="ModalTitle"></h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="ModalText"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Example 1 Modal -->
+                        
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+                        <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+                        <script src="js/jqueryoverlay.js"></script> <!-- Example Code Checking Javascript -->
+                        <script src="js/bootstrap.min.js"></script>
+                        <script src="js/challenge.js"></script> 
+                        <script src="js/examples.js"></script> <!-- Example Code Checking Javascript -->
+                    </body>
+                </html>
+                <!-- SOLUTION TO EXAMPLE 3!!
+                
+                
+                function test(n){
+                
+                var sieve = [];
+                var i = 0;
+                var maxcount = n;
+                var maxsieve = 10000;
+                var prime = 0;
+                var sum = 0;
+                var count = 0;
+                // Build the Sieve.
+                for (i = 2; i <= maxsieve; i++)
+                {
+                sieve[i] = 1;
+                }
+                // Use the Sieve to find primes and count them as they are found.
+                for (prime = 2; prime <= maxsieve && count < maxcount; prime++)
+                {
+                if (sieve[prime] == 1)
+                {
+                count += 1;
+                sum += prime;
+                for (i = prime * 2; i <= maxsieve; i += prime)
+                {
+                sieve[i] = 0;
+                }
+                }
+                }
+                return sum;
+                }
+                
+                -->
