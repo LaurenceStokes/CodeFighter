@@ -6,7 +6,7 @@ This work was conducted as part of the requirements of the Undergraudate Module 
 
 If you would like to download the code and try the app for yourself locally:
 
-1. Clone the repo: repo link
+1. Clone the repo: https://github.com/LaurenceStokes/CodeFighter
 2. Whilst in the correct directory in a terminal shell, install the required packages through: `npm install`
 3. Change the database configuration in config/database.js to match your local mongodb configurations
 4. Whilst in the correct directory in a terminal shell, launch the server using: `node server.js'
