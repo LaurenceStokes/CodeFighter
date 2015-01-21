@@ -37,6 +37,10 @@
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="public/js/ie-emulation-modes-warning.js"></script>
 	
+	<script>
+        window.userId = '<%= user._id %>';
+    </script>
+	
 
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -69,39 +73,45 @@
 
 
     <!-- Main Content -->
-    <div class="container container-profile">
+                <div class="container container-profile">
+                    
+                    <div class="finding-challenger">Finding Challenger
+                        <img class="img-responsive img-rounded" src="img/loadinggif.gif">
+                    </div>
+                    <!-- Example row of columns -->
+                    <div class="challenge">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <h2>Your challenge:</h2>
+                                <p class="challenge-description">Write a function, called 'test', that takes two explicit parameters, 'a' and 'b' and returns the result of 'a * b'</p>
 
-    <!-- Example row of columns -->
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>Example One!</h2>	
-				<p>Write a function, called 'test', that takes two explicit parameters, 'a' and 'b' and returns the result of 'a * b'</p>
-				</br>
-			</div>
-			<div class="col-lg-8">
+                                </br></br>
+                            </div>
+                                <div class="col-lg-8">
 				<div class="editor" id="editor">/**
 function that takes two explicit parameters, 'a' and 'b' and returns the result of 'a * b'
 **/		
 function test(a, b) {
 	"Type your logic here"
 }</div>
-            </div>
-			<div class="col-lg-4">
-				<br class="hidden-lg">
-				<a class="btn btn-danger" onclick="startClock('progress1');">Start!</a>
-				<a class="btn btn-danger" onclick="calculateOne();" data-toggle="modal" href="#answerModal">Check my Code!</a>
-				</br>&nbsp;		
-			</div>  
-			
-			<div class="col-lg-8">
-			</br>
-				<div class="progress progress-striped" id="progress1">
-					<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"> 
-					</div>
-				</div>
-			</div>
-        </div>
-        <!-- /.row -->
+						</div>
+						
+						<div class="col-lg-4">
+							</br>
+							<a class="btn btn-danger submit-code" data-toggle="modal" href="#answerModal">Check my Code!</a>
+							</br>&nbsp;
+						</div>  
+								
+						<div class="col-lg-8">
+						</br>
+							<div class="progress progress-striped" id="progress1">
+								<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"> 
+								</div>
+							</div>
+						</div>
+                            
+                        </div>
+                        <!-- /.row -->
 	
 	
 	
@@ -157,10 +167,12 @@ function test(a, b) {
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->		
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+	<script src="js/jqueryoverlay.js"></script> 
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/challenge.js"></script> 
 	<script src="js/examples.js"></script> <!-- Example Code Checking Javascript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="js/jqueryoverlay.js"></script> <!-- Example Code Checking Javascript -->
-    <script src="js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="js/ie10-viewport-bug-workaround.js"></script>
   </body>

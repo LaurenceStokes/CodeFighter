@@ -1,6 +1,3 @@
-var io = require('socket.io'),
-    onlineUsers = [];
-
 // app/routes.js
 module.exports = function(app, passport, server) {
 
@@ -116,8 +113,22 @@ module.exports = function(app, passport, server) {
             return;
         }
     });
+	
+	// =====================================
+    // TWITTER ROUTES ======================
+    // =====================================
+    // route for twitter authentication and login
+    app.get('/auth/twitter', passport.authenticate('twitter'));
+
+    // handle the callback after twitter has authenticated the user
+    app.get('/auth/twitter/callback',
+        passport.authenticate('twitter', {
+            successRedirect : '/profile',
+            failureRedirect : '/'
+        }));
 
 };
+
 
 // route middleware to make sure
 function isLoggedIn(req, res, next) {

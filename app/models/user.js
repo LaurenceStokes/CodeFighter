@@ -29,7 +29,8 @@ var userSchema = mongoose.Schema({
         name         : String
     },
 	date			 : { 
-		type		 : Date, 
+		type		 : Date,
+		default      : Date.now		
 	},
 	bronze			 : { 
 		type         : Number, 

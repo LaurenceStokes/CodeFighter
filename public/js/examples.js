@@ -209,6 +209,48 @@ function showResult(isCorrect) {
     }
 };
 
+function showResultSingle(isCorrect, gold, silver, bronze){
+
+	var result = '';
+	
+    try {
+            if (isCorrect == 'correct') {
+                if (sec < gold) {
+                    setInnerHTML('ModalText', 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/gold.png"></img>');
+					result = 'gold';
+                } else if (sec < silver) {
+                    setInnerHTML('ModalText', 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/silver.png"></img>');
+					result = 'silver';
+                } else if (sec < bronze) {
+                    setInnerHTML('ModalText', 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/bronze.png"></img>');
+					result = 'bronze';
+                } else {
+                    setInnerHTML('ModalText', 'Congratulations!<br> You completed the challenge in: ' + x(sec));
+                }
+                stopProgressBar();
+                stopClock();
+                setInnerHTML('ModalTitle', 'Correct!');
+				setColour('ModalTitle', "green");
+            } else {
+                setInnerHTML("ModalTitle", "Incorrect");
+				setColour("ModalTitle", "red");
+                setInnerHTML('ModalText', "Hey, it didn't work this time - have another go and try again!");
+            }
+        } catch (e) {
+            setInnerHTML("ModalTitle", 'Incorrect');
+            setColour("ModalTitle", "red");
+            if (e instanceof SyntaxError) {
+                setInnerHTML('ModalText', 'It looks like you have an error!<br>' + e);
+            } else if (e instanceof ReferenceError) {
+                setInnerHTML('ModalText', e + '<br>Please ensure your function and variables are correctly named!');
+            } else {
+                setInnerHTML('ModalText', 'It looks like you have an error!<br>' + e);
+            }
+
+        }
+		return result;
+};
+
 /**
 function to calculate whether a challenge was correct or not
 and display appropriate error (syntax/reference errors, etc)
@@ -219,6 +261,7 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
 
     //just a fix for now so you can't submit correct answer without having first clicked start. :>
     if (typeof clock != "undefined" && typeof progress != "undefined") {
+	
 
         try {
             if (eval(editorname.getValue() + testcond)) {
@@ -285,10 +328,20 @@ function x(T, Z, M) {
     return r
 }
 
+
+//needed this to be global scope
 var challengeDetail;
 
+
+// =====================================
+// SOCKET.IO STUFF  ====================
+// =====================================
 $(document).ready(function() {
 
+
+	// =====================================
+    // MULTIPLAYER  ========================
+    // =====================================
     if (document.title === 'Multiplayer Challenge') {
 
         var socket = io(),
@@ -338,6 +391,44 @@ $(document).ready(function() {
             setColour('ModalTitle', "red");
             setInnerHTML('ModalText', 'Your partner has finished the challenge!');
         });
+
+    };
+	
+	
+	// =====================================
+    // SINGLEPLAYER ========================
+    // =====================================
+	if (document.title === 'Single Player Challenge') {
+
+        var socket = io(),
+            challengerSocket;
+		
+		// Submit message to server asking for single player challenge.
+        socket.emit('game:single', window.userId);
+
+        console.log(window.userId);
+
+         socket.on('game:singleAccepted', function(data) {
+            challengeDetail = challenges[data.challenge];
+            $('.challenge-description').text(challengeDetail.description);
+            $('.challenge').show();
+            $('.finding-challenger').hide();
+			startClock('progress1');
+        });
+
+
+        $('.submit-code').click(function(e) {
+            var finalCode = editor.getValue();
+            var correct = challengeDetail.calculate(finalCode);
+			var gold = challengeDetail.gold;
+			var silver = challengeDetail.silver;
+			var bronze = challengeDetail.bronze;
+			var result = showResultSingle(correct, gold, silver, bronze);
+            if(correct == 'correct'){
+				socket.emit('game:singleCheck', {user: window.userId, res:result});
+            };
+        });
+
 
     };
 
