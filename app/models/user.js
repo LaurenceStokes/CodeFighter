@@ -29,8 +29,7 @@ var userSchema = mongoose.Schema({
         name         : String
     },
 	date			 : { 
-		type		 : Date,
-		default      : Date.now		
+		type		 : Date	
 	},
 	bronze			 : { 
 		type         : Number, 
@@ -47,6 +46,10 @@ var userSchema = mongoose.Schema({
 	multi			: { 
 		type		: Number, 
 		default		: 0 
+	},
+	mmr				: { 
+		type		: Number, 
+		default		: 1200 
 	},
 	complete		: { 
 		type		: Number, 

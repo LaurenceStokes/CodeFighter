@@ -3,12 +3,13 @@
 var io = require('socket.io'),
     User = require('../app/models/user'),
     onlineUsers = [];
+	
+var Elo = require('arpad');
 
 
 module.exports = function(server) {
 
-    var io = require('socket.io').listen(server),
-        challenger;
+    var io = require('socket.io').listen(server), challenger;
 
     // io.set("transports", ["xhr-polling"]);
     // io.set("polling duration", 10);
@@ -25,6 +26,12 @@ module.exports = function(server) {
 		// =====================================
 
         socket.on('game:invite', function(userId) {
+		
+		
+			/**var elo = new Elo();
+			User.find({userId: 'userId'}, function(error, data){
+				console.log(mmr);
+			}); **/
 
             console.log('User Connected');
             //If users in queue, take first user
@@ -54,10 +61,16 @@ module.exports = function(server) {
         socket.on('game:check', function(message){
             io.sockets.connected[message.socket].emit('game:lost');
             User.findByIdAndUpdate(message.user, {$inc: {multi: 1}},
-            function (err, user) {
-				console.log(user.multi);
-            }
-        );
+				function (err, user) {
+					console.log(user.multi);
+				}
+			);
+			
+			User.findByIdAndUpdate(message.user, {$inc: {complete: 1}},
+				function (err, user) {
+					console.log(user.complete);
+				}
+			);
 
         });
 		
@@ -100,6 +113,12 @@ module.exports = function(server) {
 					}
 				);
 			}
+			
+			User.findByIdAndUpdate(message.user, {$inc: {complete: 1}},
+				function (err, user) {
+					console.log(user.complete);
+				}
+			);
 
 		});
 		
