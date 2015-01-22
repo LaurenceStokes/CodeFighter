@@ -4,6 +4,11 @@
  * Copyright 2014 Laurence Stokes
  * ======================================================================== */
 
+ 
+// =====================================
+//  ACE Editor Stuff ===================
+// =====================================
+
 
 /**
 function to set the editor style and theme
@@ -50,7 +55,22 @@ if (document.getElementById("challenger")) {
 }
 
 
+/**function to return focus to editor (doesn't work :<)
+ **/
+function returnToEditor(editorname) {
+    /**var currline = editorname.getSelectionRange().start.row;
+    console.log(currline);
+    editorname.gotoLine(currline+1); //Go to current line + 1 (the actual current line)
+    editorname.navigateLineEnd() // go the end of that line
+    editorname.focus(); //To focus the ace editor
+    editorname.setReadOnly(false);**/
+    editorname.focus();
+}
 
+
+// =====================================
+//  HTML modifications =================
+// =====================================
 
 
 /**
@@ -68,6 +88,10 @@ function setInnerHTML(elementID, text) {
     document.getElementById(elementID).innerHTML = text;
 }
 
+
+// =====================================
+//  Stopwatch Function =================
+// =====================================
 
 //global second and millisecond variables for the set-interval timers
 var sec = 0;
@@ -108,10 +132,6 @@ function stopClock() {
     sec = 0;
 }
 
-function stopProgressBar() {
-    window.clearInterval(progress);
-    ms = 0;
-}
 
 function startTime() {
     startClock();
@@ -125,16 +145,32 @@ function updateTimer() {
 }
 
 
-/**
-function to dynamically update the (singleplayer) progress bar depending on how long the challenge should take with a switch to account for which challenge
-**/
+// =====================================
+//  Beautifies time output =============
+// =====================================
 
-function updateProgressBarSingle(elementID, bronze) {
-    ms++ // (1/10th of a second)
-	
-    //bronze limit is 45 seconds, so 450ms
-    setInnerHTML(elementID, '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ' + (ms / (bronze/10)) + '%;"> </div>');
-	
+/**
+http://codegolf.stackexchange.com/questions/12525/javascript-smallest-code-to-convert-seconds-to-time
+-converts seconds into the format 0 hours, 0 mins 0 secs, taken from above link. (slightly modified)
+**/
+function x(T, Z, M) {
+    h = T / 3600;
+    m = h % 1 * 60;
+    s = m % 1 * 60;
+    r = ~~h + 'Hours ' + ~~m + 'Min ' + ~~s + 'Sec'
+    Z ? r = r.replace(/0\w+/g, '') : 0
+    M ? r = r.replace(/\d+sec/, '') : 0
+    return r
+}
+
+
+// =====================================
+//  Progress Bars ======================
+// =====================================
+
+function stopProgressBar() {
+    window.clearInterval(progress);
+    ms = 0;
 }
 
 /**
@@ -159,6 +195,25 @@ function updateProgressBar(elementID) {
     }
 }
 
+/**
+function to dynamically update the (singleplayer) progress bar depending on how long the challenge should take with a switch to account for which challenge
+**/
+
+function updateProgressBarSingle(elementID, bronze) {
+    ms++ // (1/10th of a second)
+	
+    //bronze limit is 45 seconds, so 450ms
+    setInnerHTML(elementID, '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ' + (ms / (bronze/10)) + '%;"> </div>');
+	
+}
+
+
+// ======================================
+//  Calculations (for the INDEX/EXAMPLES)
+//  I have left these as is due to ad hoc agile development.
+//  These were basically my initial prototypes - very
+//  similar to deployed code.
+// ======================================
 
 /**
 function to calculate whether the specific challenge was correct or not
@@ -200,6 +255,65 @@ function calculateThree() {
     calculate(editorthree, 'test(250) == Number(182109)', 'ModalText', 'ModalTitle', 600, 2000, 3600);
 
 }
+
+
+/**
+function to calculate whether a challenge was correct or not
+and display appropriate error (syntax/reference errors, etc)
+and success messages as well as the specific time conditions to
+award gold silver and bronze.
+**/
+function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, bronze) {
+
+    //just a fix for now so you can't submit correct answer without having first clicked start. :>
+    if (typeof clock != "undefined" && typeof progress != "undefined") {
+	
+
+        try {
+            if (eval(editorname.getValue() + testcond)) {
+                if (sec < gold) {
+                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/gold.png"></img>');
+                } else if (sec < silver) {
+                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/silver.png"></img>');
+                } else if (sec < bronze) {
+                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/bronze.png"></img>');
+                } else {
+                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec));
+                }
+                stopProgressBar();
+                stopClock();
+                setInnerHTML(modaltitleid, 'Correct!');
+                setColour(modaltitleid, "green");
+            } else {
+                setInnerHTML(modaltitleid, "Incorrect");
+                setColour(modaltitleid, "red");
+                setInnerHTML(modalid, "Hey, it didn't work this time - have another go and try again!");
+            }
+        } catch (e) {
+            setInnerHTML(modaltitleid, 'Incorrect');
+            setColour(modaltitleid, "red");
+            if (e instanceof SyntaxError) {
+                setInnerHTML(modalid, 'It looks like you have an error!<br>' + e);
+            } else if (e instanceof ReferenceError) {
+                setInnerHTML(modalid, e + '<br>Please ensure your function and variables are correctly named!');
+            } else {
+                setInnerHTML(modalid, 'It looks like you have an error!<br>' + e);
+            }
+
+        }
+
+    } else {
+        setInnerHTML(modalid, 'Please click start first');
+    }
+
+}
+
+
+
+// ========================================================
+// Client-Side Checks for challenges (not the example ones)  
+// ========================================================
+
 
 function calculateMulti(){
     var finalCode = editor.getValue();
@@ -268,91 +382,15 @@ function showResultSingle(isCorrect, gold, silver, bronze){
 		return result;
 };
 
-/**
-function to calculate whether a challenge was correct or not
-and display appropriate error (syntax/reference errors, etc)
-and success messages as well as the specific time conditions to
-award gold silver and bronze.
-**/
-function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, bronze) {
-
-    //just a fix for now so you can't submit correct answer without having first clicked start. :>
-    if (typeof clock != "undefined" && typeof progress != "undefined") {
-	
-
-        try {
-            if (eval(editorname.getValue() + testcond)) {
-                if (sec < gold) {
-                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/gold.png"></img>');
-                } else if (sec < silver) {
-                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/silver.png"></img>');
-                } else if (sec < bronze) {
-                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec) + '<br><br>You have been awarded: <br><br> <img class="center-block" src="img/bronze.png"></img>');
-                } else {
-                    setInnerHTML(modalid, 'Congratulations!<br> You completed the challenge in: ' + x(sec));
-                }
-                stopProgressBar();
-                stopClock();
-                setInnerHTML(modaltitleid, 'Correct!');
-                setColour(modaltitleid, "green");
-            } else {
-                setInnerHTML(modaltitleid, "Incorrect");
-                setColour(modaltitleid, "red");
-                setInnerHTML(modalid, "Hey, it didn't work this time - have another go and try again!");
-            }
-        } catch (e) {
-            setInnerHTML(modaltitleid, 'Incorrect');
-            setColour(modaltitleid, "red");
-            if (e instanceof SyntaxError) {
-                setInnerHTML(modalid, 'It looks like you have an error!<br>' + e);
-            } else if (e instanceof ReferenceError) {
-                setInnerHTML(modalid, e + '<br>Please ensure your function and variables are correctly named!');
-            } else {
-                setInnerHTML(modalid, 'It looks like you have an error!<br>' + e);
-            }
-
-        }
-
-    } else {
-        setInnerHTML(modalid, 'Please click start first');
-    }
-
-}
-
-/**function to return focus to editor (doesn't work :<)
- **/
-function returnToEditor(editorname) {
-    /**var currline = editorname.getSelectionRange().start.row;
-    console.log(currline);
-    editorname.gotoLine(currline+1); //Go to current line + 1 (the actual current line)
-    editorname.navigateLineEnd() // go the end of that line
-    editorname.focus(); //To focus the ace editor
-    editorname.setReadOnly(false);**/
-    editorname.focus();
-}
-
-/**
-http://codegolf.stackexchange.com/questions/12525/javascript-smallest-code-to-convert-seconds-to-time
--converts seconds into the format 0 hours, 0 mins 0 secs, taken from above link. (slightly modified)
-**/
-function x(T, Z, M) {
-    h = T / 3600;
-    m = h % 1 * 60;
-    s = m % 1 * 60;
-    r = ~~h + 'Hours ' + ~~m + 'Min ' + ~~s + 'Sec'
-    Z ? r = r.replace(/0\w+/g, '') : 0
-    M ? r = r.replace(/\d+sec/, '') : 0
-    return r
-}
-
-
-//needed this to be global scope
-var challengeDetail;
 
 
 // =====================================
 // SOCKET.IO STUFF  ====================
 // =====================================
+
+//needed this to be global scope
+var challengeDetail;
+
 $(document).ready(function() {
 
 
@@ -450,5 +488,10 @@ $(document).ready(function() {
     };
 
 
-
 });
+
+
+
+// =====================================
+//  END OF FILE ========================
+// =====================================
