@@ -44,7 +44,7 @@ module.exports = function(server) {
 				console.log(mmr);
 			}); **/
 
-			//for testing purposes
+			//for testing purposes etc
             console.log('User Connected');
 			
             //If users in queue, take first user in the queue and make a pairing
