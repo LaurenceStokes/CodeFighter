@@ -76,7 +76,7 @@ ms = 0;
 
 /**function to start a stopwatch 
  **/
-function startClock(elementID) {
+function startClock(elementID, bronze) {
 
     //if there is a running clock & progress bar stop them before starting a new instance!!
     if (typeof clock != "undefined" && typeof progress != "undefined") {
@@ -84,7 +84,14 @@ function startClock(elementID) {
         stopProgressBar();
     }
     clock = setInterval("stopWatch()", 1000);
-    if (elementID) {
+	
+    if (elementID && bronze) {
+        progress = setInterval(function() {
+            updateProgressBarSingle(elementID, bronze)
+        }, 100);
+    }
+	
+	if (elementID && bronze == null) {
         progress = setInterval(function() {
             updateProgressBar(elementID)
         }, 100);
@@ -115,6 +122,19 @@ function startTime() {
 
 function updateTimer() {
     setInnerHTML('mp-timer', 'Elapsed Time: ' + x(sec));
+}
+
+
+/**
+function to dynamically update the (singleplayer) progress bar depending on how long the challenge should take with a switch to account for which challenge
+**/
+
+function updateProgressBarSingle(elementID, bronze) {
+    ms++ // (1/10th of a second)
+	
+    //bronze limit is 45 seconds, so 450ms
+    setInnerHTML(elementID, '<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ' + (ms / (bronze/10)) + '%;"> </div>');
+	
 }
 
 /**
@@ -177,10 +197,7 @@ and display appropriate error messages (syntax/reference errors, etc)
 **/
 function calculateThree() {
 
-    //get a number between 1 and 100 to test
-    rand1 = Math.floor((Math.random() * 100) + 1);
-
-    calculate(editorthree, 'test(250) == Number(182109)', 'ModalText', 'ModalTitle');
+    calculate(editorthree, 'test(250) == Number(182109)', 'ModalText', 'ModalTitle', 600, 2000, 3600);
 
 }
 
@@ -413,7 +430,7 @@ $(document).ready(function() {
             $('.challenge-description').text(challengeDetail.description);
             $('.challenge').show();
             $('.finding-challenger').hide();
-			startClock('progress1');
+			startClock('progress1', challengeDetail.bronze);
         });
 
 

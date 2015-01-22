@@ -1,10 +1,20 @@
 'use strict';
 
+//setup variables
 var io = require('socket.io'),
     User = require('../app/models/user'),
-    onlineUsers = [];
+    onlineUsers = [],
+	numChallenges = 3;
 	
 var Elo = require('arpad');
+
+
+/**
+function to get a random challenge
+**/
+function getRandomChallenge(){
+	return Math.floor(Math.random()* numChallenges);
+}
 
 
 module.exports = function(server) {
@@ -25,6 +35,7 @@ module.exports = function(server) {
 		// MULTIPLAYER  ========================
 		// =====================================
 
+		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
 		
 		
@@ -33,16 +44,24 @@ module.exports = function(server) {
 				console.log(mmr);
 			}); **/
 
+			//for testing purposes
             console.log('User Connected');
-            //If users in queue, take first user
+			
+            //If users in queue, take first user in the queue and make a pairing
             if (onlineUsers.length) {
+			
+				//take the first user
                 challenger = onlineUsers[0];
+				
+				//shift the array so new pairs can be made
                 onlineUsers.shift();
-				//send the socket/s and the specific challenge both users will using
-                io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: 1});
-                io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: 1});
+				
+				//send the socket/s and the specific (random) challenge both users will using through socket.emit
+				var randChallenge = getRandomChallenge();
+                io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge});
+                io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge});
             } else {
-                // if no users to challenge, add to queue.
+                // if no users to challenge, add this user to queue
                 onlineUsers.push({
                     user: userId,
                     socket: socket.id,
@@ -52,20 +71,25 @@ module.exports = function(server) {
 
         });
 
-		//update the challenger's code on both screens
+		//update the challenger's code on both screens 
         socket.on('game:codeupdate', function(message) {
             io.sockets.connected[message.socket].emit('game:codeupdated', message.code);
         });
 
-		//when a user submits correct code inform the loser and increment the winners multiplayer medal count
+		//when a user submits correct code inform the loser and increment the winners multi player medal count
         socket.on('game:check', function(message){
+		
+			//emit game lost to the losing client
             io.sockets.connected[message.socket].emit('game:lost');
+			
+			//update the database for the multiplayer medal
             User.findByIdAndUpdate(message.user, {$inc: {multi: 1}},
 				function (err, user) {
 					console.log(user.multi);
 				}
 			);
 			
+			//update the database for the 'complete' medal
 			User.findByIdAndUpdate(message.user, {$inc: {complete: 1}},
 				function (err, user) {
 					console.log(user.complete);
@@ -79,11 +103,17 @@ module.exports = function(server) {
 		// SINGLEPLAYER  =======================
 		// =====================================
 		
+		//when a client requests a singleplayer game
 		socket.on('game:single', function(challenge) {
-			 io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: 0});
+		
+			//get a random challenge
+			var randChallenge = getRandomChallenge();
+			
+			//send them back the random challenge
+			io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});
 		});
 		
-		
+		//when a client successfully submits a correct answer
 		socket.on('game:singleCheck', function(message){
 			console.log(typeof(message.res));
 			console.log(message.user);
