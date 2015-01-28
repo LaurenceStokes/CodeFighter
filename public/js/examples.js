@@ -211,7 +211,7 @@ function updateProgressBarSingle(elementID, bronze) {
 // ======================================
 //  Calculations (for the INDEX/EXAMPLES)
 //  I have left these as is due to ad hoc agile development.
-//  These were basically my initial prototypes - very
+//  These were basically my initial prototypes - albeit very
 //  similar to deployed code.
 // ======================================
 
@@ -314,7 +314,9 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
 // Client-Side Checks for challenges (not the example ones)  
 // ========================================================
 
-
+/**
+function/s for the challenge calculation for the multiplayer gamemode
+**/
 function calculateMulti(){
     var finalCode = editor.getValue();
     var correct = challengeDetail.calculate(finalCode);
@@ -340,6 +342,9 @@ function showResult(isCorrect) {
     }
 };
 
+/**
+function for the challenge calculation for the singleplayer gamemode
+**/
 function showResultSingle(isCorrect, gold, silver, bronze){
 
 	var result = '';
@@ -399,23 +404,29 @@ $(document).ready(function() {
     // =====================================
     if (document.title === 'Multiplayer Challenge') {
 
-        var socket = io(),
-            challengerSocket;
+        var socket = io(), challengerSocket;
 
+		//testing purposes
         console.log(window.userId);
 
         // Submit message to server asking for challenger.
         socket.emit('game:invite', window.userId);
 
+		
+		//when the server emits a challengeAccepted take
+		//the challenge description and update html on page
         socket.on('game:challengeAccepted', function(data) {
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
             $('.challenge').show();
             $('.finding-challenger').hide();
 
+			//get the socket for the opponent
             challengerSocket = data.socket;
         });
 
+		//when we update our editor pass this to the server to reflect changes
+		//on the challenger's page
         editor.getSession().on('change', function() {
 
             var message = {
@@ -423,23 +434,36 @@ $(document).ready(function() {
                 code: editor.getValue().toString() //get the value of the editor to pass to server
             };
 
+			//socket.emit to send to server
             socket.emit('game:codeupdate', message);
         });
 
+		//when we receive the changes from our opponent's editor
         socket.on('game:codeupdated', function(message) {
             console.log(typeof(message));
             challenger.setValue(message);
         });
 
+		//when we submit an answer
         $('.submit-code').click(function(e) {
             var finalCode = editor.getValue();
+			
+			//calculate if the answer is correct
             var correct = challengeDetail.calculate(finalCode);
+			
+			//display the result (correct/incorrect) to the user
             showResult(correct);
+			
+			//if the answer is correct emit a successful game check to server
             if(correct == 'correct'){
-            socket.emit('game:check', {socket:challengerSocket, user: window.userId});
+			
+				//emit a gamecheck to the server so the server can inform the challenger they have lost
+				socket.emit('game:check', {socket:challengerSocket, user: window.userId});
             }
         });
 
+		//if we receive a game:lost from the server notify 
+		//the user through a HTML modal popup that they have lost.
         socket.on('game:lost', function(){
             $('#answerModal').modal('show')
             setInnerHTML('ModalTitle', 'You have Lost :(');

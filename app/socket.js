@@ -5,7 +5,8 @@ var io = require('socket.io'),
     User = require('../app/models/user'),
     onlineUsers = [],
 	numChallenges = 3;
-	
+
+//for the ELO system, using node arpad module	
 var Elo = require('arpad');
 
 
@@ -118,7 +119,8 @@ module.exports = function(server) {
 			console.log(typeof(message.res));
 			console.log(message.user);
 			
-			//update the relevant badges in database :)
+			
+			//START: update the relevant badges in database :)
 			
 			if(message.res == 'gold'){
 				User.findByIdAndUpdate(message.user, {$inc: {gold: 1}},
@@ -149,6 +151,8 @@ module.exports = function(server) {
 					console.log(user.complete);
 				}
 			);
+			
+			//END: badge updating
 
 		});
 		

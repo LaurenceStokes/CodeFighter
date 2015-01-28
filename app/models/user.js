@@ -22,12 +22,6 @@ var userSchema = mongoose.Schema({
         displayName  : String,
         username     : String
     },
-    google           : {
-        id           : String,
-        token        : String,
-        email        : String,
-        name         : String
-    },
 	date			 : { 
 		type		 : Date	
 	},
