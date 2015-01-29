@@ -1,6 +1,18 @@
 {
-  "name": "node-authentication",
+  "name": "CodeFighter",
+  "description": "CodeFighter, a web-based app for learning to code Javascript. 
+				  Technologies used include node.js, express, socket.io and mongoDB. 
+				  Bootstrap 3 was used for the front-end styling.",
   "main": "server.js",
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.3.x"
+  },
+  "author": "Laurence Stokes <laurence_stokes@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LaurenceStokes/CodeFighter"
+  },
   "dependencies" : {
     "express" : "~3.4.4", 			
     "ejs" : "~0.8.5", 				
