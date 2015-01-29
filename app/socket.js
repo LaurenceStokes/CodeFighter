@@ -69,9 +69,10 @@ module.exports = function(server) {
 				//shift the array so new pairs can be made
                 onlineUsers.shift();
 				
-				console.log("challenger mmr ", challenger.usermmr); 
 				
-				//logging the mmr changes if a user wins or loses.
+				console.log("challenger mmr: ", challenger.usermmr); 
+				
+				//logging the mmr changes if a user wins or loses (was useful in development)
 				getUserMMR(function(err, res) {
 						var new_usermmr = elo.newRatingIfWon(res, challenger.usermmr);
 						var new_usermmrlost = elo.newRatingIfLost(res, challenger.usermmr);
@@ -90,7 +91,8 @@ module.exports = function(server) {
 				});
 				
             } else {
-                // if no users to challenge, add this user to queue
+				
+                // if no users to challenge, add this user to queue and push necessary details to the onlineUsers array
                 getUserMMR(function(err, mmr) {
 					onlineUsers.push({
 						user: userId,
@@ -108,7 +110,8 @@ module.exports = function(server) {
             io.sockets.connected[message.socket].emit('game:codeupdated', message.code);
         });
 
-		//when a user submits correct code inform the loser and increment the winners multi player medal count
+		//when a user submits correct code inform the loser and increment the winners' 
+		//multi player medal count and  update their elo rating
         socket.on('game:check', function(message){
 			
 			function getUserMMR(callback){
