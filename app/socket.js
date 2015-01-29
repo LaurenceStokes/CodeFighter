@@ -40,10 +40,23 @@ module.exports = function(server) {
         socket.on('game:invite', function(userId) {
 		
 		
-			/**var elo = new Elo();
-			User.find({userId: 'userId'}, function(error, data){
-				console.log(mmr);
-			}); **/
+			var elo = new Elo();			
+			
+			function getUserMMR(){
+				
+				var mmr = 0;
+				
+				User.findOne({_id: userId}, function (err, user) { 
+					console.log(user.multi);
+					mmr = user.multi;
+					return mmr;
+				});
+				
+				return mmr;
+				
+			}
+			
+			console.log('test ' + getUserMMR());
 
 			//for testing purposes etc
             console.log('User Connected');
@@ -80,7 +93,7 @@ module.exports = function(server) {
 		//when a user submits correct code inform the loser and increment the winners multi player medal count
         socket.on('game:check', function(message){
 		
-			//emit game lost to the losing client
+			//emit game lost to the  server to reflect to losing client
             io.sockets.connected[message.socket].emit('game:lost');
 			
 			//update the database for the multiplayer medal
