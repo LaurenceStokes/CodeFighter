@@ -469,6 +469,9 @@ $(document).ready(function() {
             setInnerHTML('ModalTitle', 'You have Lost :(');
             setColour('ModalTitle', "red");
             setInnerHTML('ModalText', 'Your partner has finished the challenge!');
+			
+			//emit a an elo update to the server so the server can update our elo on a loss
+			socket.emit('game:eloupdate', {user: window.userId});
         });
 
     };

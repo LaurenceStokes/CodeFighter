@@ -31,6 +31,7 @@ module.exports = function(server) {
 	// =====================================
     io.on('connection', function(socket) {
 	
+		var elo = new Elo();	
 	
 		// =====================================
 		// MULTIPLAYER  ========================
@@ -39,28 +40,22 @@ module.exports = function(server) {
 		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
 		
-		
-			var elo = new Elo();			
 			
-			function getUserMMR(){
-				
-				var mmr = 0;
-				
-				User.findOne({_id: userId}, function (err, user) { 
+			
+			//get the mmr for the current user
+			function getUserMMR(callback){
+				var mmr  = 0;
+				User.findOne({_id: userId}, function (err, user) {
 					if (!err) {
-						console.log(user.multi);
-						mmr = user.multi;
-						return mmr;
+					  console.log(user.mmr);
+					  callback(null, user.mmr);
+					  return mmr;
 					} else {
-						// error handling
+						callback({msg: "Something went wrong", err: err})
 					};
 				});
-				
-				return mmr;
-				
 			}
 			
-			console.log('test ' + getUserMMR());
 
 			//for testing purposes etc
             console.log('User Connected');
@@ -74,17 +69,36 @@ module.exports = function(server) {
 				//shift the array so new pairs can be made
                 onlineUsers.shift();
 				
+				console.log("challenger mmr ", challenger.usermmr); 
+				
+				//logging the mmr changes if a user wins or loses.
+				getUserMMR(function(err, res) {
+						var new_usermmr = elo.newRatingIfWon(res, challenger.usermmr);
+						var new_usermmrlost = elo.newRatingIfLost(res, challenger.usermmr);
+						console.log("User new rating if win:", new_usermmr); 
+						console.log("User new rating if lost:", new_usermmrlost);
+				});			
+				
+					
+					
 				//send the socket/s and the specific (random) challenge both users will using through socket.emit
 				var randChallenge = getRandomChallenge();
-                io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge});
-                io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge});
+                io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+				
+				getUserMMR(function(err, res) {
+					 io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });	
+				});
+				
             } else {
                 // if no users to challenge, add this user to queue
-                onlineUsers.push({
-                    user: userId,
-                    socket: socket.id,
-                    inGame: false
-                });
+                getUserMMR(function(err, mmr) {
+					onlineUsers.push({
+						user: userId,
+						socket: socket.id,
+						usermmr: mmr,
+						inGame: false
+				  });
+				})
             }
 
         });
@@ -96,6 +110,32 @@ module.exports = function(server) {
 
 		//when a user submits correct code inform the loser and increment the winners multi player medal count
         socket.on('game:check', function(message){
+			
+			function getUserMMR(callback){
+				var mmr  = 0;
+				User.findOne({_id: message.user}, function (err, user) {
+					if (!err) {
+					  console.log(user.mmr);
+					  callback(null, user.mmr);
+					  return mmr;
+					} else {
+						callback({msg: "Something went wrong", err: err})
+					};
+				});
+			}
+			
+			getUserMMR(function(err, res) {
+				var new_usermmr = elo.newRatingIfWon(res, challenger.usermmr);
+				User.findByIdAndUpdate(message.user, {$set: {mmr: new_usermmr}},
+					function (err, user) {
+						if (!err) {
+							console.log(user.mmr);
+						} else {
+							// error handling
+						};					
+					}
+				);
+			});			
 		
 			//emit game lost to the  server to reflect to losing client
             io.sockets.connected[message.socket].emit('game:lost');
@@ -123,6 +163,38 @@ module.exports = function(server) {
 			);
         });
 		
+		
+		//if we recieve an eloupdate message (on a loss) we calculate our new elo and update it as required
+		socket.on('game:eloupdate', function(message){
+			
+			function getUserMMR(callback){
+				var mmr  = 0;
+				User.findOne({_id: message.user}, function (err, user) {
+					if (!err) {
+					  console.log(user.mmr);
+					  callback(null, user.mmr);
+					  return mmr;
+					} else {
+						callback({msg: "Something went wrong", err: err})
+					};
+				});
+			}
+			
+			getUserMMR(function(err, res) {
+				var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
+				User.findByIdAndUpdate(message.user, {$set: {mmr: new_usermmr}},
+					function (err, user) {
+						if (!err) {
+							console.log(user.mmr);
+						} else {
+							// error handling
+						};					
+					}
+				);
+			});	
+
+			
+		});
 		
 		// =====================================
 		// SINGLEPLAYER  =======================
