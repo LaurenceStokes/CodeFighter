@@ -47,9 +47,13 @@ module.exports = function(server) {
 				var mmr = 0;
 				
 				User.findOne({_id: userId}, function (err, user) { 
-					console.log(user.multi);
-					mmr = user.multi;
-					return mmr;
+					if (!err) {
+						console.log(user.multi);
+						mmr = user.multi;
+						return mmr;
+					} else {
+						// error handling
+					};
 				});
 				
 				return mmr;
@@ -99,17 +103,24 @@ module.exports = function(server) {
 			//update the database for the multiplayer medal
             User.findByIdAndUpdate(message.user, {$inc: {multi: 1}},
 				function (err, user) {
-					console.log(user.multi);
+					if (!err) {
+						console.log(user.multi);
+					} else {
+						// error handling
+					};					
 				}
 			);
 			
 			//update the database for the 'complete' medal
 			User.findByIdAndUpdate(message.user, {$inc: {complete: 1}},
 				function (err, user) {
-					console.log(user.complete);
+					if (!err) {
+						console.log(user.complete);
+					} else {
+						// error handling
+					};					
 				}
 			);
-
         });
 		
 		
@@ -138,7 +149,11 @@ module.exports = function(server) {
 			if(message.res == 'gold'){
 				User.findByIdAndUpdate(message.user, {$inc: {gold: 1}},
 					function (err, user) {
-						console.log(user.gold);
+						if (!err) {
+							console.log(user.gold);
+						} else {
+							// error handling
+						};					
 					}
 				);
 			}
@@ -146,7 +161,11 @@ module.exports = function(server) {
 			if(message.res == 'silver'){
 				User.findByIdAndUpdate(message.user, {$inc: {silver: 1}},
 					function (err, user) {
-						console.log(user.silver);
+						if (!err) {
+							console.log(user.silver);
+						} else {
+							// error handling
+						};					
 					}
 				);
 			}
@@ -154,14 +173,22 @@ module.exports = function(server) {
 			if(message.res == 'bronze'){
 				User.findByIdAndUpdate(message.user, {$inc: {bronze: 1}},
 					function (err, user) {
-						console.log(user.bronze);
+						if (!err) {
+							console.log(user.bronze);
+						} else {
+							// error handling
+						};					
 					}
 				);
 			}
 			
 			User.findByIdAndUpdate(message.user, {$inc: {complete: 1}},
 				function (err, user) {
-					console.log(user.complete);
+					if (!err) {
+						console.log(user.complete);
+					} else {
+						// error handling
+					};					
 				}
 			);
 			
