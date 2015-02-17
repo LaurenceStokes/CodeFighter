@@ -18,6 +18,46 @@ function getRandomChallenge(){
 }
 
 
+
+/**
+function to populate an array incrementally up to a specified size, n
+taken from: http://www.2ality.com/2013/11/initializing-arrays.html
+**/
+function fillArrayWithNumbers(n) {
+        var arr = Array.apply(null, Array(n));
+        return arr.map(function (x, i) { return i });
+ }
+
+ 
+ /** 
+ function to get a random number from a range, excluding a subset of numbers within that range
+ modified from: http://stackoverflow.com/questions/19451425/javascript-generating-random-numbers-in-a-range-excluding-certain-numbers
+ **/
+function getRandomExcluding(completed){
+
+	//create and populate an array up to the number of challenges there are
+	var numbers = fillArrayWithNumbers(numChallenges);
+	
+	//exclude the completed challenges
+	var exclude = completed;
+	
+	//build a filtered list of 'allowed' numbers' and then pick of one those at random
+	var filtered = [];
+	
+	for (var i = 0; i < numbers.length; i += 1) {
+		if (exclude.indexOf(numbers[i]) === -1) {
+			filtered.push(numbers[i]);
+		}
+	}
+	
+	var rand = Math.floor(Math.random() * filtered.length);
+	var num = filtered[rand];
+
+	return num;
+
+}
+
+
 module.exports = function(server) {
 
     var io = require('socket.io').listen(server), challenger;
@@ -206,17 +246,58 @@ module.exports = function(server) {
 		//when a client requests a singleplayer game
 		socket.on('game:single', function(challenge) {
 		
+		
+			function getUserCompleted(callback){
+					var completed  = [];
+					
+					User.findOne({_id: challenge.user}, function (err, user) {
+						if (!err) {
+						  console.log(user.completed);
+						  callback(null, user.completed);
+						  return completed;
+						} else {
+							callback({msg: "Something went wrong", err: err})
+						};
+					});
+			}
+				
+			
+			getUserCompleted(function(err, completed) {
+				var randChallenge = getRandomExcluding(completed);
+				console.log('random challenge picked = ' + randChallenge);
+				
+				if (randChallenge === undefined || randChallenge === null){
+					io.sockets.connected[socket.id].emit('game:noneAvailable');		
+				}
+				else{
+					io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});
+				}
+			})
+		
 			//get a random challenge
 			var randChallenge = getRandomChallenge();
 			
 			//send them back the random challenge
-			io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});
+			//io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});
 		});
 		
 		//when a client successfully submits a correct answer
 		socket.on('game:singleCheck', function(message){
+		
+			//for testing
 			console.log(typeof(message.res));
 			console.log(message.user);
+			
+			
+			User.findByIdAndUpdate(message.user, {$push: {completed: message.challengeID}},
+					function (err, user) {
+						if (!err) {
+							console.log(user.completed);
+						} else {
+							// error handling
+						};					
+					}
+			);
 			
 			
 			//START: update the relevant badges in database :)

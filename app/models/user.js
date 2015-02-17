@@ -48,6 +48,9 @@ var userSchema = mongoose.Schema({
 	complete		: { 
 		type		: Number, 
 		default		: 0 
+	},
+	completed		: { 
+		type		: [Number] 
 	}
 	
 });

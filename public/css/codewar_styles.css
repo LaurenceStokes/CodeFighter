@@ -288,7 +288,10 @@ hr {
 
 .challenge{
 	display: none;
+}
 
+.none-available{
+	display: none;
 }
 
 /* Media Queries

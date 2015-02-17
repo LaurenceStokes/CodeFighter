@@ -418,8 +418,8 @@ $(document).ready(function() {
         socket.on('game:challengeAccepted', function(data) {
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
-            $('.challenge').show();
             $('.finding-challenger').hide();
+			$('.challenge').show();
 
 			//get the socket for the opponent
             challengerSocket = data.socket;
@@ -486,19 +486,33 @@ $(document).ready(function() {
             challengerSocket;
 		
 		// Submit message to server asking for single player challenge.
-        socket.emit('game:single', window.userId);
+        socket.emit('game:single', {user: window.userId});
 
+		//for testing purposes
         console.log(window.userId);
 
+		//get the challenge details from the server (with a timeout to transition into the challenge)
          socket.on('game:singleAccepted', function(data) {
-            challengeDetail = challenges[data.challenge];
-            $('.challenge-description').text(challengeDetail.description);
-            $('.challenge').show();
-            $('.finding-challenger').hide();
-			startClock('progress1', challengeDetail.bronze);
+			setTimeout(function(){ 
+				challengeDetail = challenges[data.challenge];
+				$('.challenge-description').text(challengeDetail.description);
+				$('.finding-challenger').hide();
+				$('.challenge').show();
+				startClock('progress1', challengeDetail.bronze);		
+			},2000);
+        });
+		
+		//Inform user there are no available challenges
+		socket.on('game:noneAvailable', function(data) {
+			setTimeout(function(){ 
+				$('.finding-challenger').hide();
+				$('.none-available').show();
+			},1000);
         });
 
 
+		//process the user code when they click the submit code button. 
+		//Send a game:singleCheck to server if the result is correct
         $('.submit-code').click(function(e) {
             var finalCode = editor.getValue();
             var correct = challengeDetail.calculate(finalCode);
@@ -507,7 +521,7 @@ $(document).ready(function() {
 			var bronze = challengeDetail.bronze;
 			var result = showResultSingle(correct, gold, silver, bronze);
             if(correct == 'correct'){
-				socket.emit('game:singleCheck', {user: window.userId, res:result});
+				socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
             };
         });
 
