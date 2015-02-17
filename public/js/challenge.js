@@ -63,8 +63,43 @@ var challenges = [
 		calculate: function(userAnswer) {
 
 		try{
-			//hardcoded the 250th result.
-			if(eval(userAnswer + 'test(250) == Number(182109)')){
+		
+		//get a number betweens 1 and 100 to test
+		rand1 = Math.floor((Math.random() * 100) + 1);
+			
+			function answer(n){
+		
+				var sieve = [];
+				var i = 0;
+				var maxcount = n;
+				var maxsieve = 10000;
+				var prime = 0;
+				var sum = 0;
+				var count = 0;
+
+				// Build the Sieve.
+				for (i = 2; i <= maxsieve; i++)
+				{
+					sieve[i] = 1;
+				}
+
+				// Use the Sieve to find primes and count them as they are found.
+				for (prime = 2; prime <= maxsieve && count < maxcount; prime++)
+				{
+					if (sieve[prime] == 1)
+					{
+						count += 1;
+						sum += prime;
+						for (i = prime * 2; i <= maxsieve; i += prime)
+						{
+							sieve[i] = 0;
+						}
+					}
+				}
+					return sum;
+			}
+			
+			if(eval(userAnswer + 'test(rand1) == answer(rand1)')){
 				return 'correct';
 			}else{
 				return 'incorrect';

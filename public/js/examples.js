@@ -504,6 +504,7 @@ $(document).ready(function() {
 		
 		//Inform user there are no available challenges
 		socket.on('game:noneAvailable', function(data) {
+		console.log('test');
 			setTimeout(function(){ 
 				$('.finding-challenger').hide();
 				$('.none-available').show();
