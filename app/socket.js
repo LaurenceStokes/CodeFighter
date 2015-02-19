@@ -96,6 +96,20 @@ module.exports = function(server) {
 				});
 			}
 			
+			//function to get the closest item from an array
+			function closest (num, arr) {
+                var curr = arr[0];
+                var diff = Math.abs (num - curr);
+                for (var val = 0; val < arr.length; val++) {
+                    var newdiff = Math.abs (num - arr[val]);
+                    if (newdiff < diff) {
+                        diff = newdiff;
+                        curr = arr[val];
+                    }
+                }
+                return (val-1);
+            }
+			
 
 			//for testing purposes etc
             console.log('User Connected');
@@ -103,6 +117,36 @@ module.exports = function(server) {
             //If users in queue, take first user in the queue and make a pairing
             if (onlineUsers.length) {
 			
+				getUserMMR(function(err, res) {
+					
+					//get the closest ranked player from the existing onlineusers array
+					var indice = closest(res, onlineUsers);
+					console.log(indice);
+					challenger = onlineUsers[indice];
+					
+					//if the ELO is within a specific range
+					if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
+						
+						//splice array to remove the matched challenger
+						onlineUsers.splice(indice, 1); 
+						
+						//send the socket/s and the specific (random) challenge both users will using through socket.emit
+						var randChallenge = getRandomChallenge();
+						io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+						io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+						
+					//if no user in current array is within the matching parameters, push ourself into the array to wait for a new challenger
+					}else{
+						onlineUsers.push({
+						user: userId,
+						socket: socket.id,
+						usermmr: res,
+						inGame: false
+						});
+					}
+				});	
+			
+				/**
 				//take the first user
                 challenger = onlineUsers[0];
 				
@@ -129,6 +173,7 @@ module.exports = function(server) {
 				getUserMMR(function(err, res) {
 					 io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });	
 				});
+				**/
 				
             } else {
 				
