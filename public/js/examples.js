@@ -419,8 +419,28 @@ $(document).ready(function() {
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
             $('.finding-challenger').hide();
-			$('.challenge').show();
+			$('.challenge-found').show();
+			
+			
+			//set up a timer to countdown to the match starting
+			var count=5;
+			var counter=setInterval(timer, 1000); //run timer every second
 
+			//timer function to countdown to the match starting
+			function timer(){
+				count=count-1;
+				if (count <= 0){
+					clearInterval(counter);
+					$('.challenge-found').hide();
+					$('.challenge').show();	
+					return;
+			  }
+			  
+				document.getElementById("timer").innerHTML=count + " Seconds";
+			}
+					
+			timer();
+			
 			//get the socket for the opponent
             challengerSocket = data.socket;
         });

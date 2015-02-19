@@ -294,6 +294,10 @@ hr {
 	display: none;
 }
 
+.challenge-found{
+	display: none;
+}
+
 /* Media Queries
 ================================= */
 
