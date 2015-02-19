@@ -58,6 +58,26 @@ function getRandomExcluding(completed){
 }
 
 
+//http://stackoverflow.com/questions/1584370/how-to-merge-two-arrays-in-javascript-and-de-duplicate-items
+function arrayUnique(array) {
+    var a = array.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+};
+
+//var array3 = arrayUnique(array1.concat(array2));
+
+
+
+// =====================================
+// SOCKET STUFF ========================
+// =====================================
 module.exports = function(server) {
 
     var io = require('socket.io').listen(server), challenger;
@@ -76,18 +96,40 @@ module.exports = function(server) {
 		// =====================================
 		// MULTIPLAYER  ========================
 		// =====================================
+		
 
 		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
-		
 			
+			function getUserCompleted(callback){
+					var completed  = [];
+					
+					User.findOne({_id: userId}, function (err, user) {
+						if (!err) {
+						  console.log(user.completed);
+						  callback(null, user.completed);
+						  return completed;
+						} else {
+							callback({msg: "Something went wrong", err: err})
+						};
+					});
+			}
+			
+			/**
+			getUserCompleted(function(err, completed) {
+				var randChallenge = getRandomExcluding(completed);
+				if (randChallenge === undefined || randChallenge === null){
+					console.log('hit me');
+					io.sockets.connected[socket.id].emit('game:noneAvailable');	
+				}
+			});**/
 			
 			//get the mmr for the current user
 			function getUserMMR(callback){
 				var mmr  = 0;
 				User.findOne({_id: userId}, function (err, user) {
 					if (!err) {
-					  console.log(user.mmr);
+					  //console.log(user.mmr); (Was for testing)
 					  callback(null, user.mmr);
 					  return mmr;
 					} else {
@@ -123,56 +165,85 @@ module.exports = function(server) {
 					var indice = closest(res, onlineUsers);
 					console.log(indice);
 					challenger = onlineUsers[indice];
+					console.log('testing for acquiring challenger completed '+ challenger.usercomplete);
 				
 					if (indice != -1){
+					
 						if(num < 10){
 							if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
-								stop_count();
-								
-								//splice array to remove the matched challenger
-								onlineUsers.splice(indice, 1); 
-								
+
 								//send the socket/s and the specific (random) challenge both users will using through socket.emit
-								var randChallenge = getRandomChallenge();
-								io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-								io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
-								
-								
+								getUserCompleted(function(err, completed) {
+									var array3 = arrayUnique((challenger.usercomplete).concat(completed));
+									var randChallenge = getRandomExcluding(array3);
+									if (randChallenge === undefined || randChallenge === null){
+										console.log('hit this one!');
+									}else{
+										//splice array to remove the matched challenger
+										onlineUsers.splice(indice, 1); 
+										stop_count();
+										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+									}
+								});							
 							}
 						}else if(num < 20){
-							if((res <= challenger.usermmr + 50)  && res >= (challenger.usermmr -50)){
-								stop_count();
-								//splice array to remove the matched challenger
-								onlineUsers.splice(indice, 1); 
+							if((res <= challenger.usermmr + 50)  && res >= (challenger.usermmr -50)){ 
 								
 								//send the socket/s and the specific (random) challenge both users will using through socket.emit
-								var randChallenge = getRandomChallenge();
-								io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-								io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+								getUserCompleted(function(err, completed) {
+									var array3 = arrayUnique((challenger.usercomplete).concat(completed));
+									var randChallenge = getRandomExcluding(array3);
+									if (randChallenge === undefined || randChallenge === null){
+										console.log('hit this one!');
+									}else{
+										//splice array to remove the matched challenger
+										onlineUsers.splice(indice, 1); 
+										stop_count();
+										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+									}
+								});		
 								
 							}
 						}
 						else if(num < 40){
 							if((res <= challenger.usermmr + 100)  && res >= (challenger.usermmr -100)){
-								stop_count();
-								//splice array to remove the matched challenger
-								onlineUsers.splice(indice, 1); 
 								
 								//send the socket/s and the specific (random) challenge both users will using through socket.emit
-								var randChallenge = getRandomChallenge();
-								io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-								io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+								getUserCompleted(function(err, completed) {
+									var array3 = arrayUnique((challenger.usercomplete).concat(completed));
+									var randChallenge = getRandomExcluding(array3);
+									if (randChallenge === undefined || randChallenge === null){
+										console.log('hit this one!');
+									}else{
+										//splice array to remove the matched challenger
+										onlineUsers.splice(indice, 1); 
+										stop_count();
+										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+									}
+								});		
 								
 							}
 						}
 						//if no user in current array is within the matching parameters, push ourself into the array to wait for a new challenger
 						else if (num > 40){
 							stop_count();
-							onlineUsers.push({
-							user: userId,
-							socket: socket.id,
-							usermmr: res,
-							inGame: false
+							getUserCompleted(function(err, completed) {
+								var randChallenge = getRandomExcluding(completed);
+								if (randChallenge === undefined || randChallenge === null){
+									console.log('hit me');
+									io.sockets.connected[socket.id].emit('game:noneAvailable');	
+								}else{
+									onlineUsers.push({
+									user: userId,
+									socket: socket.id,
+									usermmr: res,
+									usercomplete: completed,
+									inGame: false
+									});
+								}
 							});
 						}
 					}
@@ -231,12 +302,21 @@ module.exports = function(server) {
 				
                 // if no users to challenge, add this user to queue and push necessary details to the onlineUsers array
                 getUserMMR(function(err, mmr) {
-					onlineUsers.push({
-						user: userId,
-						socket: socket.id,
-						usermmr: mmr,
-						inGame: false
-				  });
+					getUserCompleted(function(err, completed) {
+						var randChallenge = getRandomExcluding(completed);
+						if (randChallenge === undefined || randChallenge === null){
+							console.log('hit me');
+							io.sockets.connected[socket.id].emit('game:noneAvailable');	
+						}else{
+							onlineUsers.push({
+								user: userId,
+								socket: socket.id,
+								usermmr: mmr,
+								usercomplete: completed,
+								inGame: false
+							});
+						}
+					});
 				})
             }
 
@@ -372,7 +452,7 @@ module.exports = function(server) {
 			})
 		
 			//get a random challenge
-			var randChallenge = getRandomChallenge();
+			//var randChallenge = getRandomChallenge();
 			
 			//send them back the random challenge
 			//io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});

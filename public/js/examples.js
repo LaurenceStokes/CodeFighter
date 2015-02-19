@@ -411,6 +411,15 @@ $(document).ready(function() {
 
         // Submit message to server asking for challenger.
         socket.emit('game:invite', window.userId);
+		
+		//Inform user there are no available challenges
+		socket.on('game:noneAvailable', function(data) {
+		console.log('test');
+			setTimeout(function(){ 
+				$('.finding-challenger').hide();
+				$('.none-available').show();
+			},1000);
+        });
 
 		
 		//when the server emits a challengeAccepted take
