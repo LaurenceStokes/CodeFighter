@@ -110,41 +110,93 @@ module.exports = function(server) {
                 return (val-1);
             }
 			
-
 			//for testing purposes etc
             console.log('User Connected');
 			
-            //If users in queue, take first user in the queue and make a pairing
-            if (onlineUsers.length) {
-			
-				getUserMMR(function(err, res) {
+			function start_interval() {
+					
+					counter = setInterval(function () {getUserMMR(function(err, res) {	
+					
+					num++;
 					
 					//get the closest ranked player from the existing onlineusers array
 					var indice = closest(res, onlineUsers);
 					console.log(indice);
 					challenger = onlineUsers[indice];
-					
-					//if the ELO is within a specific range
-					if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
-						
-						//splice array to remove the matched challenger
-						onlineUsers.splice(indice, 1); 
-						
-						//send the socket/s and the specific (random) challenge both users will using through socket.emit
-						var randChallenge = getRandomChallenge();
-						io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-						io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
-						
-					//if no user in current array is within the matching parameters, push ourself into the array to wait for a new challenger
-					}else{
-						onlineUsers.push({
-						user: userId,
-						socket: socket.id,
-						usermmr: res,
-						inGame: false
-						});
+				
+					if (indice != -1){
+						if(num < 10){
+							if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
+								stop_count();
+								
+								//splice array to remove the matched challenger
+								onlineUsers.splice(indice, 1); 
+								
+								//send the socket/s and the specific (random) challenge both users will using through socket.emit
+								var randChallenge = getRandomChallenge();
+								io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+								io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+								
+								
+							}
+						}else if(num < 20){
+							if((res <= challenger.usermmr + 50)  && res >= (challenger.usermmr -50)){
+								stop_count();
+								//splice array to remove the matched challenger
+								onlineUsers.splice(indice, 1); 
+								
+								//send the socket/s and the specific (random) challenge both users will using through socket.emit
+								var randChallenge = getRandomChallenge();
+								io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+								io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+								
+							}
+						}
+						else if(num < 40){
+							if((res <= challenger.usermmr + 100)  && res >= (challenger.usermmr -100)){
+								stop_count();
+								//splice array to remove the matched challenger
+								onlineUsers.splice(indice, 1); 
+								
+								//send the socket/s and the specific (random) challenge both users will using through socket.emit
+								var randChallenge = getRandomChallenge();
+								io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+								io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+								
+							}
+						}
+						//if no user in current array is within the matching parameters, push ourself into the array to wait for a new challenger
+						else if (num > 40){
+							stop_count();
+							onlineUsers.push({
+							user: userId,
+							socket: socket.id,
+							usermmr: res,
+							inGame: false
+							});
+						}
 					}
-				});	
+					
+					})},1000)        
+				}
+				
+				function stop_count() {
+					clearInterval(counter);
+					num = 0;
+				}
+			
+            //If users in queue, take first user in the queue and make a pairing
+            if (onlineUsers.length) {
+				
+				start_interval();
+				
+				var num = 0;
+				var counter;
+				
+				
+					
+					
+					
 			
 				/**
 				//take the first user
