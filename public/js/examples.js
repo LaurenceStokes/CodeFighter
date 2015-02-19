@@ -436,7 +436,8 @@ $(document).ready(function() {
 					return;
 			  }
 			  
-				document.getElementById("timer").innerHTML=count + " Seconds";
+				setColour('timer', 'red');
+				setInnerHTML('timer', count+" Seconds");
 			}
 					
 			timer();
