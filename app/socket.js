@@ -155,7 +155,10 @@ module.exports = function(server) {
 			//for testing purposes etc
             console.log('User Connected');
 			
+
+			
 			function start_interval() {
+				
 					
 					counter = setInterval(function () {getUserMMR(function(err, res) {	
 					
@@ -256,47 +259,14 @@ module.exports = function(server) {
 					num = 0;
 				}
 			
-            //If users in queue, take first user in the queue and make a pairing
+            //If users in queue, start the interval function to loop round to find the
+			//closed rated (ELO) player
             if (onlineUsers.length) {
 				
 				start_interval();
 				
 				var num = 0;
 				var counter;
-				
-				
-					
-					
-					
-			
-				/**
-				//take the first user
-                challenger = onlineUsers[0];
-				
-				//shift the array so new pairs can be made
-                onlineUsers.shift();
-				
-				
-				console.log("challenger mmr: ", challenger.usermmr); 
-				
-				//logging the mmr changes if a user wins or loses (was useful in development)
-				getUserMMR(function(err, res) {
-						var new_usermmr = elo.newRatingIfWon(res, challenger.usermmr);
-						var new_usermmrlost = elo.newRatingIfLost(res, challenger.usermmr);
-						console.log("User new rating if win:", new_usermmr); 
-						console.log("User new rating if lost:", new_usermmrlost);
-				});			
-				
-					
-					
-				//send the socket/s and the specific (random) challenge both users will using through socket.emit
-				var randChallenge = getRandomChallenge();
-                io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-				
-				getUserMMR(function(err, res) {
-					 io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });	
-				});
-				**/
 				
             } else {
 				

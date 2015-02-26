@@ -72,7 +72,6 @@ function returnToEditor(editorname) {
 //  HTML modifications =================
 // =====================================
 
-
 /**
 function to set the Colour of the specified element 
 (for correct/incorrect answers)
@@ -397,6 +396,12 @@ function showResultSingle(isCorrect, gold, silver, bronze){
 var challengeDetail;
 
 $(document).ready(function() {
+	
+	/**setup (dynamic) favicon so a user knows it is counting down when a match is found
+    var badge = 5;
+    var favicon = new Favico({
+        animation : 'slide'
+    });**/
 
 
 	// =====================================
@@ -430,21 +435,27 @@ $(document).ready(function() {
             $('.finding-challenger').hide();
 			$('.challenge-found').show();
 			
+			//change the favicon so if users were on a different tab they know a match has been found
+			//$("#favicon").attr("href","favicon2.ico");
 			
 			//set up a timer to countdown to the match starting
-			var count=5;
+			var count=6;
 			var counter=setInterval(timer, 1000); //run timer every second
 
 			//timer function to countdown to the match starting
 			function timer(){
-				count=count-1;
+				count=count-1;				
+					
 				if (count <= 0){
 					clearInterval(counter);
+					Tinycon.setBubble(0);
+					Tinycon.setImage("img/favicon2.ico");
 					$('.challenge-found').hide();
 					$('.challenge').show();	
 					return;
 			  }
 			  
+				Tinycon.setBubble(count);
 				setColour('timer', 'red');
 				setInnerHTML('timer', count+" Seconds");
 			}
