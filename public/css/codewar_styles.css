@@ -71,6 +71,12 @@ strong {
 /* Layout
 ================================= */
 
+#countdown {
+	font-size: 2em;
+	color: red;
+	opacity: 0;
+}
+
 .border-left{
 	border-left: 1px solid #333;
 }

@@ -307,7 +307,7 @@ award gold silver and bronze.
 **/
 function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, bronze) {
 
-    //just a fix for now so you can't submit correct answer without having first clicked start. :>
+    //can't submit correct answer without having first clicked start. :> (for examples only)
     if (typeof clock != "undefined" && typeof progress != "undefined") {
 	
 
@@ -501,9 +501,19 @@ $(document).ready(function() {
 					return;
 			  }
 			  
+				//update the favicon to have a countdown based on the current count
 				Tinycon.setBubble(count);
-				setColour('timer', 'red');
-				setInnerHTML('timer', count+" Seconds");
+				
+				if (count >=2){
+					setInnerHTML('timer', "<span id='countdown'>"+count+"</span>"+ " Seconds...");
+					//animate the countdown
+					$("#countdown").delay(200).animate({"opacity": "1"}, 300);
+				}
+				else{
+					setInnerHTML('timer', "<span id='countdown'>"+count+"</span>"+ " Second...");
+					//animate countdown
+					$("#countdown").delay(200).animate({"opacity": "1"}, 300);
+				}
 			}
 					
 			timer();
