@@ -68,6 +68,49 @@ function returnToEditor(editorname) {
 }
 
 
+
+var IE = navigator.userAgent.indexOf("MSIE")!=-1
+
+var favicon = {
+    change: function(iconURL) {
+        if (arguments.length == 2) {
+            document.title = optionalDocTitle}
+        this.addLink(iconURL, "icon")
+        this.addLink(iconURL, "shortcut icon")
+
+        // Google Chrome HACK - whenever an IFrame changes location 
+        // (even to about:blank), it updates the favicon for some reason
+        // It doesn't work on Safari at all though :-(
+        if (!IE) { // Disable the IE "click" sound
+            if (!window.__IFrame) {
+                __IFrame = document.createElement('iframe')
+                var s = __IFrame.style
+                s.height = s.width = s.left = s.top = s.border = 0
+                s.position = 'absolute'
+                s.visibility = 'hidden'
+                document.body.appendChild(__IFrame)}
+            __IFrame.src = 'about:blank'}},
+
+    addLink: function(iconURL, relValue) {
+        var link = document.createElement("link")
+        link.type = "image/x-icon"
+        link.rel = relValue
+        link.href = iconURL
+        this.removeLinkIfExists(relValue)
+        this.docHead.appendChild(link)},
+
+    removeLinkIfExists: function(relValue) {
+        var links = this.docHead.getElementsByTagName("link");
+        for (var i=0; i<links.length; i++) {
+            var link = links[i]
+            if (link.type == "image/x-icon" && link.rel == relValue) {
+                this.docHead.removeChild(link)
+                return}}}, // Assuming only one match at most.
+				 
+	docHead: document.getElementsByTagName("head")[0]}
+	
+	
+
 // =====================================
 //  HTML modifications =================
 // =====================================
@@ -449,7 +492,10 @@ $(document).ready(function() {
 				if (count <= 0){
 					clearInterval(counter);
 					Tinycon.setBubble(0);
-					Tinycon.setImage("img/favicon2.ico");
+					
+					//timeout to switch the favicon to the 'in game' favicon (chrome bug fix: https://code.google.com/p/chromium/issues/detail?id=99549)
+					window.setTimeout( function(event) { favicon.change("img/favicon2.ico"); }, 110);
+					
 					$('.challenge-found').hide();
 					$('.challenge').show();	
 					return;
@@ -535,6 +581,11 @@ $(document).ready(function() {
 		//get the challenge details from the server (with a timeout to transition into the challenge)
          socket.on('game:singleAccepted', function(data) {
 			setTimeout(function(){ 
+				
+				//timeout to switch the favicon to the 'in game' favicon (chrome bug fix: https://code.google.com/p/chromium/issues/detail?id=99549)
+				window.setTimeout( function(event) { favicon.change("img/favicon2.ico"); }, 110);
+				
+				
 				challengeDetail = challenges[data.challenge];
 				$('.challenge-description').text(challengeDetail.description);
 				$('.finding-challenger').hide();
