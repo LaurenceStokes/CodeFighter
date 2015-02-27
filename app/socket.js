@@ -92,6 +92,14 @@ module.exports = function(server) {
     io.on('connection', function(socket) {
 	
 		var elo = new Elo();	
+		
+		var num = 0;
+		var counter;
+		
+		function stop_count() {
+					clearInterval(counter);
+					num = 0;
+		}
 	
 		// =====================================
 		// MULTIPLAYER  ========================
@@ -168,7 +176,7 @@ module.exports = function(server) {
 					var indice = closest(res, onlineUsers);
 					console.log(indice);
 					challenger = onlineUsers[indice];
-					console.log('testing for acquiring challenger completed '+ challenger.usercomplete);
+					//console.log('testing for acquiring challenger completed '+ challenger.usercomplete);
 				
 					if (indice != -1){
 					
@@ -182,11 +190,13 @@ module.exports = function(server) {
 									if (randChallenge === undefined || randChallenge === null){
 										console.log('hit this one!');
 									}else{
-										//splice array to remove the matched challenger
-										onlineUsers.splice(indice, 1); 
-										stop_count();
-										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										if ((socket.id !== undefined || socket.id !== null) && (challenger.socket !== undefined || challenger.socket !== null)){
+											//splice array to remove the matched challenger
+											onlineUsers.splice(indice, 1); 
+											stop_count();
+											io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+											io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										}
 									}
 								});							
 							}
@@ -200,11 +210,13 @@ module.exports = function(server) {
 									if (randChallenge === undefined || randChallenge === null){
 										console.log('hit this one!');
 									}else{
-										//splice array to remove the matched challenger
-										onlineUsers.splice(indice, 1); 
-										stop_count();
-										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										if ((socket.id !== undefined || socket.id !== null) || (challenger.socket !== undefined || challenger.socket !== null)){
+											//splice array to remove the matched challenger
+											onlineUsers.splice(indice, 1); 
+											stop_count();
+											io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+											io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										}
 									}
 								});		
 								
@@ -220,11 +232,13 @@ module.exports = function(server) {
 									if (randChallenge === undefined || randChallenge === null){
 										console.log('hit this one!');
 									}else{
-										//splice array to remove the matched challenger
-										onlineUsers.splice(indice, 1); 
-										stop_count();
-										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										if ((socket.id !== undefined || socket.id !== null) || (challenger.socket!== undefined || challenger.socket !== null)){
+											//splice array to remove the matched challenger
+											onlineUsers.splice(indice, 1); 
+											stop_count();
+											io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+											io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										}
 									}
 								});		
 								
@@ -253,20 +267,13 @@ module.exports = function(server) {
 					
 					})},1000)        
 				}
-				
-				function stop_count() {
-					clearInterval(counter);
-					num = 0;
-				}
+					
 			
             //If users in queue, start the interval function to loop round to find the
 			//closed rated (ELO) player
             if (onlineUsers.length) {
 				
 				start_interval();
-				
-				var num = 0;
-				var counter;
 				
             } else {
 				
@@ -499,11 +506,31 @@ module.exports = function(server) {
 
 		});
 		
+		//get array position for the socket in the online users
+		function arrayPosition(socketid) {
+			var i = null;
+			for (i = 0; onlineUsers.length > i; i += 1) {
+				if (onlineUsers[i].socket === socket.id) {
+					return i;
+				}
+			}
+     
+		return -1;
+		};
+		
 		// =====================================
 		// DISCONNECT  =========================
 		// =====================================
 		
         socket.on('disconnect', function() {
+			//stop any active searches for people who withdrew during search
+			stop_count();
+			
+			//splice array, removing socket that disconnected
+			var pos = arrayPosition(socket.id);
+			if (pos != - 1){
+				onlineUsers.splice(pos, 1);
+			}
             console.log('user disconnected');
         });
     });
