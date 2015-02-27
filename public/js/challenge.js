@@ -67,6 +67,8 @@ var challenges = [
 		//get a number betweens 1 and 100 to test
 		rand1 = Math.floor((Math.random() * 100) + 1);
 			
+			
+			//A correct answer to the challenge
 			function answer(n){
 		
 				var sieve = [];

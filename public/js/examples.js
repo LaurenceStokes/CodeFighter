@@ -440,17 +440,13 @@ var challengeDetail;
 
 $(document).ready(function() {
 	
-	/**setup (dynamic) favicon so a user knows it is counting down when a match is found
-    var badge = 5;
-    var favicon = new Favico({
-        animation : 'slide'
-    });**/
-
 
 	// =====================================
     // MULTIPLAYER  ========================
     // =====================================
     if (document.title === 'Multiplayer Challenge') {
+	
+
 
         var socket = io(), challengerSocket;
 
@@ -540,23 +536,34 @@ $(document).ready(function() {
             console.log(typeof(message));
             challenger.setValue(message);
         });
+		
+		//so user can't submit correct answer over and over
+		var clicked = true
 
 		//when we submit an answer
         $('.submit-code').click(function(e) {
-            var finalCode = editor.getValue();
+		
+			if(clicked){
 			
-			//calculate if the answer is correct
-            var correct = challengeDetail.calculate(finalCode);
-			
-			//display the result (correct/incorrect) to the user
-            showResult(correct);
-			
-			//if the answer is correct emit a successful game check to server
-            if(correct == 'correct'){
-			
-				//emit a gamecheck to the server so the server can inform the challenger they have lost
-				socket.emit('game:check', {socket:challengerSocket, user: window.userId});
-            }
+				var finalCode = editor.getValue();
+				//calculate if the answer is correct
+				var correct = challengeDetail.calculate(finalCode);
+				//display the result (correct/incorrect) to the user
+				showResult(correct);
+				
+				//if the answer is correct emit a successful game check to server
+				if(correct == 'correct'){
+				
+					//emit a gamecheck to the server so the server can inform the challenger they have lost
+					socket.emit('game:check', {socket:challengerSocket, user: window.userId});
+					
+					//prevent user from re-clicking submit
+					clicked = false;
+					
+					//redirect to profile page
+					window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+				}
+			}
         });
 
 		//if we receive a game:lost from the server notify 
@@ -567,8 +574,14 @@ $(document).ready(function() {
             setColour('ModalTitle', "red");
             setInnerHTML('ModalText', 'Your partner has finished the challenge!');
 			
+			//disable any further code checking
+			clicked = false;
+			
 			//emit a an elo update to the server so the server can update our elo on a loss
 			socket.emit('game:eloupdate', {user: window.userId});
+			
+			//redirect to profile page
+			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
         });
 
     };
@@ -613,20 +626,33 @@ $(document).ready(function() {
 			},1000);
         });
 
-
+		//so user can't submit correct answer over and over
+		var clicked = true
+		
 		//process the user code when they click the submit code button. 
 		//Send a game:singleCheck to server if the result is correct
         $('.submit-code').click(function(e) {
-            var finalCode = editor.getValue();
-            var correct = challengeDetail.calculate(finalCode);
-			var gold = challengeDetail.gold;
-			var silver = challengeDetail.silver;
-			var bronze = challengeDetail.bronze;
-			var result = showResultSingle(correct, gold, silver, bronze);
-            if(correct == 'correct'){
-				socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
-            };
-        });
+		
+			if(clicked){
+			
+				var finalCode = editor.getValue();
+				var correct = challengeDetail.calculate(finalCode);
+				var gold = challengeDetail.gold;
+				var silver = challengeDetail.silver;
+				var bronze = challengeDetail.bronze;
+				var result = showResultSingle(correct, gold, silver, bronze);
+				
+				if(correct == 'correct'){
+					socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
+					
+					//prevent user from re-clicking submit
+					clicked = false;
+					
+					//redirect to profile page
+					window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+				};
+			}
+		});
 
 
     };
