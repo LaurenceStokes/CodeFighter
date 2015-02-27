@@ -58,7 +58,10 @@ function getRandomExcluding(completed){
 }
 
 
-//http://stackoverflow.com/questions/1584370/how-to-merge-two-arrays-in-javascript-and-de-duplicate-items
+/** 
+ function merge two arrays and de-duplicate items
+ taken from: http://stackoverflow.com/questions/1584370/how-to-merge-two-arrays-in-javascript-and-de-duplicate-items
+ **/
 function arrayUnique(array) {
     var a = array.concat();
     for(var i=0; i<a.length; ++i) {
@@ -69,9 +72,12 @@ function arrayUnique(array) {
     }
 
     return a;
+	
+	//usage
+	//var array3 = arrayUnique(array1.concat(array2));
+
 };
 
-//var array3 = arrayUnique(array1.concat(array2));
 
 
 
