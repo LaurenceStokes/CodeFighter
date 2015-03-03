@@ -303,6 +303,7 @@ function calculateThree() {
 }
 
 
+
 /**
 function to calculate whether a challenge was correct or not
 and display appropriate error (syntax/reference errors, etc)
@@ -310,6 +311,26 @@ and success messages as well as the specific time conditions to
 award gold silver and bronze.
 **/
 function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, bronze) {
+	
+	setInnerHTML(modaltitleid, "Checking Code");
+    setInnerHTML(modalid, "Running your code, hang on!");
+	
+	var workerResponse = '';
+	var worker = new Worker("js/worker.js");
+ 
+	worker.addEventListener('message', function(e) {
+    workerResponse = e.data;
+	}, false);
+ 
+	worker.postMessage(({'cmd': 'start', 'msg': editorname.getValue()}));
+	//console.log(workerResponse);
+	
+	var myVar;
+
+		myVar = setTimeout(timeout, 3000);
+
+	function timeout(){
+	if(workerResponse == 'done'){
 
     //can't submit correct answer without having first clicked start. :> (for examples only)
     if (typeof clock != "undefined" && typeof progress != "undefined") {
@@ -351,6 +372,12 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
     } else {
         setInnerHTML(modalid, 'Please click start first');
     }
+	}else{
+		setInnerHTML(modaltitleid, "Checking Code");
+		setInnerHTML(modalid, "Looks like you have an infite loop, please check your code!");
+		worker.terminate();
+	}
+	}
 
 }
 
@@ -413,11 +440,16 @@ function showResultSingle(isCorrect, gold, silver, bronze){
                 stopClock();
                 setInnerHTML('ModalTitle', 'Correct!');
 				setColour('ModalTitle', "green");
-            } else {
+            } else if(isCorrect == 'incorrect') {
                 setInnerHTML("ModalTitle", "Incorrect");
 				setColour("ModalTitle", "red");
-                setInnerHTML('ModalText', "Hey, it didn't work this time - have another go and try again!");
-            }
+				setInnerHTML('ModalText', 'Sorry, that answer was incorrect');
+            } else{
+				setInnerHTML("ModalTitle", "Incorrect");
+				setColour("ModalTitle", "red");
+				setInnerHTML('ModalText', 'It looks like you have an error!<br>' + isCorrect);
+				
+			}
         } catch (e) {
             setInnerHTML("ModalTitle", 'Incorrect');
             setColour("ModalTitle", "red");
@@ -575,22 +607,50 @@ $(document).ready(function() {
 			if(clicked){
 			
 				var finalCode = editor.getValue();
-				//calculate if the answer is correct
-				var correct = challengeDetail.calculate(finalCode);
-				//display the result (correct/incorrect) to the user
-				showResult(correct);
 				
-				//if the answer is correct emit a successful game check to server
-				if(correct == 'correct'){
 				
-					//emit a gamecheck to the server so the server can inform the challenger they have lost
-					socket.emit('game:check', {socket:challengerSocket, user: window.userId});
-					
-					//prevent user from re-clicking submit
-					clicked = false;
-					
-					//redirect to profile page
-					window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+				setInnerHTML("ModalTitle", "Checking Code");
+				setInnerHTML("ModalText", "Running your code, hang on!");
+	
+				var workerResponse = '';
+				var worker = new Worker("js/worker.js");
+ 
+				worker.addEventListener('message', function(e) {
+					workerResponse = e.data;
+				}, false);
+ 
+				worker.postMessage(({'cmd': 'start', 'msg': finalCode}));
+				//console.log(workerResponse);
+	
+				var myVar;
+
+				myVar = setTimeout(timeout, 3000);
+
+				function timeout(){
+					if(workerResponse == 'done'){
+				
+						//calculate if the answer is correct
+						var correct = challengeDetail.calculate(finalCode);
+						//display the result (correct/incorrect) to the user
+						showResult(correct);
+						
+						//if the answer is correct emit a successful game check to server
+						if(correct == 'correct'){
+						
+							//emit a gamecheck to the server so the server can inform the challenger they have lost
+							socket.emit('game:check', {socket:challengerSocket, user: window.userId});
+							
+							//prevent user from re-clicking submit
+							clicked = false;
+							
+							//redirect to profile page
+							window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+						}
+					}else{
+						setInnerHTML("ModalTitle", "Checking Code");
+						setInnerHTML("ModalText", "Looks like you have an infite loop, please check your code!");
+						worker.terminate();
+					}
 				}
 			}
         });
@@ -665,25 +725,48 @@ $(document).ready(function() {
 			if(clicked){
 			
 				var finalCode = editor.getValue();
-				var correct = challengeDetail.calculate(finalCode);
-				var gold = challengeDetail.gold;
-				var silver = challengeDetail.silver;
-				var bronze = challengeDetail.bronze;
-				var result = showResultSingle(correct, gold, silver, bronze);
-				
-				if(correct == 'correct'){
-					socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
-					
-					//prevent user from re-clicking submit
-					clicked = false;
-					
-					//redirect to profile page
-					window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
-				};
+				setInnerHTML("ModalTitle", "Checking Code");
+				setInnerHTML("ModalText", "Running your code, hang on!");
+	
+				var workerResponse = '';
+				var worker = new Worker("js/worker.js");
+ 
+				worker.addEventListener('message', function(e) {
+					workerResponse = e.data;
+				}, false);
+ 
+				worker.postMessage(({'cmd': 'start', 'msg': finalCode}));
+				//console.log(workerResponse);
+	
+				var myVar;
+
+				myVar = setTimeout(timeout, 3000);
+
+				function timeout(){
+					if(workerResponse == 'done'){
+						var correct = challengeDetail.calculate(finalCode);
+						var gold = challengeDetail.gold;
+						var silver = challengeDetail.silver;
+						var bronze = challengeDetail.bronze;
+						var result = showResultSingle(correct, gold, silver, bronze);
+						
+						if(correct == 'correct'){
+							socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
+							
+							//prevent user from re-clicking submit
+							clicked = false;
+							
+							//redirect to profile page
+							window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+						};
+					}else{
+						setInnerHTML("ModalTitle", "Checking Code");
+						setInnerHTML("ModalText", "Looks like you have an infite loop, please check your code!");
+						worker.terminate();
+					}
+				}
 			}
 		});
-
-
     };
 
 
