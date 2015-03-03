@@ -4,6 +4,8 @@
 var io = require('socket.io'),
     User = require('../app/models/user'),
     onlineUsers = [],
+	
+	//define the number of challenges
 	numChallenges = 3;
 
 //for the ELO system, using node arpad module	
@@ -153,6 +155,7 @@ module.exports = function(server) {
 			}
 			
 			//function to get the closest item from an array
+			//modified from: http://stackoverflow.com/questions/8584902/get-closet-number-out-of-array
 			function closest (num, arr) {
                 var curr = arr[0];
                 var diff = Math.abs (num - curr);

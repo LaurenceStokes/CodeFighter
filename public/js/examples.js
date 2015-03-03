@@ -68,6 +68,10 @@ function returnToEditor(editorname) {
 }
 
 
+// =====================================
+//  Favicon ============================
+// =====================================
+
 
 var IE = navigator.userAgent.indexOf("MSIE")!=-1
 
@@ -468,7 +472,7 @@ $(document).ready(function() {
         });
 		
 		//Inform user they timed out/searched for too long
-		socket.on('game:timeOut', function(data) {
+		socket.on('game:timeout', function(data) {
 		console.log('test');
 			setTimeout(function(){ 
 				$('.finding-challenger').hide();
