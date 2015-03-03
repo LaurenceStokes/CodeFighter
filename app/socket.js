@@ -171,94 +171,102 @@ module.exports = function(server) {
 			
 
 			
-			function start_interval() {
+			function start_interval(number) {
 				
+					num = number;
+					var inArray = false;
 					
 					counter = setInterval(function () {getUserMMR(function(err, res) {	
 					
 					num++;
 					
+					getUserCompleted(function(err, completed) {
+						var randChallenge = getRandomExcluding(completed);
+						if (randChallenge === undefined || randChallenge === null){
+							console.log('hit me 1');
+							io.sockets.connected[socket.id].emit('game:noneAvailable');
+							stop_count();
+						}
+					});
+					
 					//get the closest ranked player from the existing onlineusers array
 					var indice = closest(res, onlineUsers);
 					console.log(indice);
+					console.log(num);
+					console.log(inArray);
 					challenger = onlineUsers[indice];
 					//console.log('testing for acquiring challenger completed '+ challenger.usercomplete);
 				
-					if (indice != -1){
-					
-						if(num < 10){
-							if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
+				
+					if(num < 10){
+						if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
 
-								//send the socket/s and the specific (random) challenge both users will using through socket.emit
-								getUserCompleted(function(err, completed) {
-									var array3 = arrayUnique((challenger.usercomplete).concat(completed));
-									var randChallenge = getRandomExcluding(array3);
-									if (randChallenge === undefined || randChallenge === null){
-										console.log('hit this one!');
-									}else{
-										if ((socket.id !== undefined || socket.id !== null) && (challenger.socket !== undefined || challenger.socket !== null)){
-											//splice array to remove the matched challenger
-											onlineUsers.splice(indice, 1); 
-											stop_count();
-											io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-											io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
-										}
-									}
-								});							
-							}
-						}else if(num < 20){
-							if((res <= challenger.usermmr + 50)  && res >= (challenger.usermmr -50)){ 
-								
-								//send the socket/s and the specific (random) challenge both users will using through socket.emit
-								getUserCompleted(function(err, completed) {
-									var array3 = arrayUnique((challenger.usercomplete).concat(completed));
-									var randChallenge = getRandomExcluding(array3);
-									if (randChallenge === undefined || randChallenge === null){
-										console.log('hit this one!');
-									}else{
-										if ((socket.id !== undefined || socket.id !== null) || (challenger.socket !== undefined || challenger.socket !== null)){
-											//splice array to remove the matched challenger
-											onlineUsers.splice(indice, 1); 
-											stop_count();
-											io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-											io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
-										}
-									}
-								});		
-								
-							}
-						}
-						else if(num < 40){
-							if((res <= challenger.usermmr + 100)  && res >= (challenger.usermmr -100)){
-								
-								//send the socket/s and the specific (random) challenge both users will using through socket.emit
-								getUserCompleted(function(err, completed) {
-									var array3 = arrayUnique((challenger.usercomplete).concat(completed));
-									var randChallenge = getRandomExcluding(array3);
-									if (randChallenge === undefined || randChallenge === null){
-										console.log('hit this one!');
-									}else{
-										if ((socket.id !== undefined || socket.id !== null) || (challenger.socket!== undefined || challenger.socket !== null)){
-											//splice array to remove the matched challenger
-											onlineUsers.splice(indice, 1); 
-											stop_count();
-											io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-											io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
-										}
-									}
-								});		
-								
-							}
-						}
-						//if no user in current array is within the matching parameters, push ourself into the array to wait for a new challenger
-						else if (num > 40){
-							stop_count();
+							//send the socket/s and the specific (random) challenge both users will using through socket.emit
 							getUserCompleted(function(err, completed) {
-								var randChallenge = getRandomExcluding(completed);
+								var array3 = arrayUnique((challenger.usercomplete).concat(completed));
+								var randChallenge = getRandomExcluding(array3);
 								if (randChallenge === undefined || randChallenge === null){
-									console.log('hit me');
-									io.sockets.connected[socket.id].emit('game:noneAvailable');	
+									console.log('hit this one!');
 								}else{
+									if ((socket.id !== undefined || socket.id !== null) && (challenger.socket !== undefined || challenger.socket !== null)){
+										//splice array to remove the matched challenger
+										onlineUsers.splice(indice, 1); 
+										stop_count();
+										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+									}
+								}
+							});							
+						}
+					}else if(num < 20){
+						if((res <= challenger.usermmr + 50)  && res >= (challenger.usermmr -50)){ 
+							
+							//send the socket/s and the specific (random) challenge both users will using through socket.emit
+							getUserCompleted(function(err, completed) {
+								var array3 = arrayUnique((challenger.usercomplete).concat(completed));
+								var randChallenge = getRandomExcluding(array3);
+								if (randChallenge === undefined || randChallenge === null){
+									console.log('hit this one!');
+								}else{
+									if ((socket.id !== undefined || socket.id !== null) || (challenger.socket !== undefined || challenger.socket !== null)){
+										//splice array to remove the matched challenger
+										onlineUsers.splice(indice, 1); 
+										stop_count();
+										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+									}
+								}
+							});		
+							
+						}
+					}
+					else if(num < 40){
+						if((res <= challenger.usermmr + 100)  && res >= (challenger.usermmr -100)){
+							
+							//send the socket/s and the specific (random) challenge both users will using through socket.emit
+							getUserCompleted(function(err, completed) {
+								var array3 = arrayUnique((challenger.usercomplete).concat(completed));
+								var randChallenge = getRandomExcluding(array3);
+								if (randChallenge === undefined || randChallenge === null){
+									console.log('hit this one!');
+								}else{
+									if ((socket.id !== undefined || socket.id !== null) || (challenger.socket!== undefined || challenger.socket !== null)){
+										//splice array to remove the matched challenger
+										onlineUsers.splice(indice, 1); 
+										stop_count();
+										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+									}
+								}
+							});		
+							
+						}
+					}
+
+					//if we're waiting for over 40 seconds, just stick us in the array
+					else if (num >= 40 && num < 60){
+						if(!inArray){
+							getUserCompleted(function(err, completed) {
 									onlineUsers.push({
 									user: userId,
 									socket: socket.id,
@@ -266,43 +274,36 @@ module.exports = function(server) {
 									usercomplete: completed,
 									inGame: false
 									});
-								}
-							});
+								});
+							inArray = true;
 						}
 					}
-					
-					})},1000)        
-				}
+					//if we're waiting for too long, disconnect us
+					else if (num >=60){
+						io.sockets.connected[socket.id].emit('game:timeOut');	
+						socket.disconnect();
+					}
+				
+				})},1000)        
+			}
 					
 			
             //If users in queue, start the interval function to loop round to find the
 			//closed rated (ELO) player
             if (onlineUsers.length) {
 				
-				start_interval();
+				start_interval(0);
 				
             } else {
 				
-                // if no users to challenge, add this user to queue and push necessary details to the onlineUsers array
-                getUserMMR(function(err, mmr) {
-					getUserCompleted(function(err, completed) {
-						var randChallenge = getRandomExcluding(completed);
-						if (randChallenge === undefined || randChallenge === null){
-							console.log('hit me');
-							io.sockets.connected[socket.id].emit('game:noneAvailable');	
-						}else{
-							onlineUsers.push({
-								user: userId,
-								socket: socket.id,
-								usermmr: mmr,
-								usercomplete: completed,
-								inGame: false
-							});
-						}
-					});
-				})
+                start_interval(40);
             }
 
+        });
+		
+		//update the challenger's code on both screens 
+        socket.on('game:ingame', function() {
+            stop_count();
         });
 
 		//update the challenger's code on both screens 

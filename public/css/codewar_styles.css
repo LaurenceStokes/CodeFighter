@@ -300,6 +300,11 @@ hr {
 	display: none;
 }
 
+.time-out{
+	display: none;
+}
+
+
 .challenge-found{
 	display: none;
 }

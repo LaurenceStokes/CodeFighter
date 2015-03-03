@@ -463,12 +463,26 @@ $(document).ready(function() {
 				$('.finding-challenger').hide();
 				$('.none-available').show();
 			},1000);
+			//redirect to profile page
+			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+        });
+		
+		//Inform user they timed out/searched for too long
+		socket.on('game:timeOut', function(data) {
+		console.log('test');
+			setTimeout(function(){ 
+				$('.finding-challenger').hide();
+				$('.time-out').show();
+			},1000);
+			//redirect to profile page
+			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
         });
 
 		
 		//when the server emits a challengeAccepted take
 		//the challenge description and update html on page
         socket.on('game:challengeAccepted', function(data) {
+			socket.emit('game:ingame');
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
             $('.finding-challenger').hide();
