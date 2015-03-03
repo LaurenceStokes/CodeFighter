@@ -76,18 +76,46 @@
 		<div class="col-lg-4">
 			<img class="img-responsive img-rounded signup" src="img/profilered.jpg">
 			<hr/>
-			<h2>FirstName LastName</h2>
+			<% if (user.local.email) { %>
+				<h2><%= user.local.email %></h2>
+			<% } else if (user.facebook.token) { %>
+				<h2><%= user.facebook.token %></h2>
+			<% } else { %>
+			
+			<% } %>
 			<p><strong>Account Info:</strong></p>
 			<br class="hidden-lg">
 			<table class="table table-bordered">
                 <tbody>
                     <tr>
-                        <td><span class="glyphicon glyphicon-envelope"></span> Email:</td>
-                        <td> <%= user.local.email %></td>
+						<!-- check if the user has this token (is the user authenticated locally) -->
+						<% if (user.local.email) { %>
+							<td><span class="glyphicon glyphicon-check"></span> Email: <strong><%= user.local.email %></strong></td>
+							<td><span class="glyphicon glyphicon-link"> </span><a href="/unlink/local"> Unlink</a></td>
+						<% } else { %>
+							<td><span class="glyphicon glyphicon-edit"></span> Email: <strong>None Linked %></strong></td>
+							<td><span class="glyphicon glyphicon-link"></span><a href="/connect/local"> Connect Local</a></td>
+						<% } %>
                     </tr>
 					<tr>
-                        <td><span class="glyphicon glyphicon-globe"></span> Website:</td>
-                        <td>www.example.com</td>
+						<!-- check if the user has this token (is the user authenticaed /w Facebook) -->
+						<% if (user.facebook.token) { %>
+							<td><span class="glyphicon glyphicon-check"></span> Facebook: <strong><%= user.facebook.name %></strong></td>
+							<td><span class="glyphicon glyphicon-link"> </span><a href="/unlink/local"> Unlink</a></td>
+						<% } else { %>
+							<td><span class="glyphicon glyphicon-edit"></span> Facebook: <strong>None Linked</strong></td>
+							<td><span class="glyphicon glyphicon-link"></span><a href="/connect/facebook"> Connect Facebook</a></td>
+						<% } %>
+                    </tr>
+					<tr>
+						<!-- check if the user has this token (is the user authenticaed /w Twitter) -->
+						<% if (user.twitter.token) { %>
+							<td><span class="glyphicon glyphicon-check"></span> Twitter: <strong><%= user.twitter.displayName %></strong></td>
+							<td><span class="glyphicon glyphicon-link"> </span><a href="/unlink/twitter"> Unlink</a></td>
+						<% } else { %>
+							<td><span class="glyphicon glyphicon-edit"></span> Twitter: <strong>None Linked</strong></td>
+							<td><span class="glyphicon glyphicon-link"></span><a href="/connect/twitter"> Connect Twitter</a></td>
+						<% } %>
                     </tr>
 					<tr>
                         <td><span class="glyphicon glyphicon-gift"></span> Member Since:</td>
@@ -107,48 +135,6 @@
                     </tr>
 			</table>
 		</div>
-		 <!-- FACEBOOK INFORMATION -->
-        <div class="col-sm-6">
-            <div class="well">
-                <h3 class="text-primary"><span class="fa fa-facebook"></span> Facebook</h3>
-
-                <!-- check if the user has this token (is the user authenticated with this social account) -->
-                <% if (user.facebook.token) { %>
-                    <p>
-                        <strong>id</strong>: <%= user.facebook.id %><br>
-                        <strong>token</strong>: <%= user.facebook.token %><br>
-                        <strong>email</strong>: <%= user.facebook.email %><br>
-                        <strong>name</strong>: <%= user.facebook.name %><br>
-                    </p>
-
-                    <a href="/unlink/facebook" class="btn btn-primary">Unlink</a>
-                <% } else { %>
-                    <a href="/connect/facebook" class="btn btn-primary">Connect Facebook</a>
-                <% } %>
-
-            </div>
-        </div>
-    </div>
-	
-	<!-- LOCAL INFORMATION -->
-        <div class="col-sm-6">
-            <div class="well">
-                <h3><span class="fa fa-user"></span> Local</h3>
-
-                <% if (user.local.email) { %>
-                    <p>
-                        <strong>id</strong>: <%= user._id %><br>
-                        <strong>email</strong>: <%= user.local.email %><br>
-                        <strong>password</strong>: <%= user.local.password %>
-                    </p>
-                    
-                    <a href="/unlink/local" class="btn btn-default">Unlink</a>
-                <% } else { %>
-                    <a href="/connect/local" class="btn btn-default">Connect Local</a>
-                <% } %>
-
-            </div>
-        </div>
 
 		<div class="col-lg-4 col-sm-offset-4 grey-background">
 			<h3>My Badges:</h3>
