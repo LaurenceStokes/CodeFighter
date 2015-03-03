@@ -197,7 +197,14 @@ module.exports = function(server) {
 					challenger = onlineUsers[indice];
 					//console.log('testing for acquiring challenger completed '+ challenger.usercomplete);
 				
-				
+					//if there is no 'closest' player assume array is now empty
+					//and go straigth to putting ourselves in array
+					if(indice < 0){
+						
+						num = 40;
+						
+					}
+					
 					if(num < 10){
 						if((res <= challenger.usermmr + 20)  && res >= (challenger.usermmr -20)){
 
@@ -279,7 +286,7 @@ module.exports = function(server) {
 						}
 					}
 					//if we're waiting for too long, disconnect us
-					else if (num >=60){
+					else if (num >=80){
 						io.sockets.connected[socket.id].emit('game:timeOut');	
 						socket.disconnect();
 					}
@@ -289,12 +296,16 @@ module.exports = function(server) {
 					
 			
             //If users in queue, start the interval function to loop round to find the
-			//closed rated (ELO) player
+			//closed rated player and matchmake
             if (onlineUsers.length) {
 				
-				start_interval(0);
 				
+				start_interval(0);
+			
+			//otherwise start at the point where we just go 'into' array 
+			//as the array is empty and searching is useless
             } else {
+				
 				
                 start_interval(40);
             }
