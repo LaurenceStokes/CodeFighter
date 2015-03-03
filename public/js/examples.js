@@ -312,8 +312,8 @@ award gold silver and bronze.
 **/
 function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, bronze) {
 	
-	setInnerHTML(modaltitleid, "Checking Code");
-    setInnerHTML(modalid, "Running your code, hang on!");
+	setInnerHTML("ModalTitle", "Processing your code...");
+	setInnerHTML("ModalText", '<img class="img-responsive img-rounded center-block" src="img/loadingsmall.gif">');
 	
 	var workerResponse = '';
 	var worker = new Worker("js/worker.js");
@@ -609,8 +609,8 @@ $(document).ready(function() {
 				var finalCode = editor.getValue();
 				
 				
-				setInnerHTML("ModalTitle", "Checking Code");
-				setInnerHTML("ModalText", "Running your code, hang on!");
+				setInnerHTML("ModalTitle", "Processing your code...");
+				setInnerHTML("ModalText", '<img class="img-responsive img-rounded center-block" src="img/loadingsmall.gif">');
 	
 				var workerResponse = '';
 				var worker = new Worker("js/worker.js");
@@ -725,8 +725,8 @@ $(document).ready(function() {
 			if(clicked){
 			
 				var finalCode = editor.getValue();
-				setInnerHTML("ModalTitle", "Checking Code");
-				setInnerHTML("ModalText", "Running your code, hang on!");
+				setInnerHTML("ModalTitle", "Processing your code...");
+				setInnerHTML("ModalText", '<img class="img-responsive img-rounded center-block" src="img/loadingsmall.gif">');
 	
 				var workerResponse = '';
 				var worker = new Worker("js/worker.js");
