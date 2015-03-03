@@ -304,6 +304,9 @@ hr {
 	display: none;
 }
 
+.cancel{
+	display: none;
+}
 
 .challenge-found{
 	display: none;

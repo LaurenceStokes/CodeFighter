@@ -319,6 +319,11 @@ module.exports = function(server) {
         socket.on('game:ingame', function() {
             stop_count();
         });
+		
+		//when a client clicks cancel search
+		socket.on('game:cancel', function(){
+			socket.disconnect()
+		});
 
 		//update the challenger's code on both screens 
         socket.on('game:codeupdate', function(message) {

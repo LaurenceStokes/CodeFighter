@@ -460,6 +460,18 @@ $(document).ready(function() {
         // Submit message to server asking for challenger.
         socket.emit('game:invite', window.userId);
 		
+		//if we cancel an active search
+        $('.cancel-search').click(function(e) {
+			socket.emit('game:cancel');
+			setTimeout(function(){ 
+				$('.finding-challenger').hide();
+				$('.cancel').show();
+			},1000);
+			//redirect to profile page
+			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+		
+        });
+		
 		//Inform user there are no available challenges
 		socket.on('game:noneAvailable', function(data) {
 		console.log('test');
@@ -473,7 +485,6 @@ $(document).ready(function() {
 		
 		//Inform user they timed out/searched for too long
 		socket.on('game:timeout', function(data) {
-		console.log('test');
 			setTimeout(function(){ 
 				$('.finding-challenger').hide();
 				$('.time-out').show();
