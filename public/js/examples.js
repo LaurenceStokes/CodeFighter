@@ -645,7 +645,7 @@ $(document).ready(function() {
 								showResult(correct);
 						
 								//emit a gamecheck to the server so the server can inform the challenger they have lost
-								socket.emit('game:check', {socket:challengerSocket, user: window.userId});
+								socket.emit('game:check', {socket:challengerSocket, user: window.userId, challengeID: challengeDetail.challengeId});
 							}
 							
 							//prevent user from re-clicking submit
