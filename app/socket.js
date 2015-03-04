@@ -337,6 +337,17 @@ module.exports = function(server) {
 			//emit game lost to the  server to reflect to losing client
             io.sockets.connected[message.socket].emit('game:lost');
 			
+			//update that they have completed this challenge
+			User.findByIdAndUpdate(message.user, {$push: {completed: message.challengeID}},
+					function (err, user) {
+						if (!err) {
+							console.log(user.completed);
+						} else {
+							// error handling
+						};					
+					}
+			);
+			
 			function getUserMMR(callback){
 				var mmr  = 0;
 				User.findOne({_id: message.user}, function (err, user) {
@@ -468,7 +479,7 @@ module.exports = function(server) {
 			console.log(typeof(message.res));
 			console.log(message.user);
 			
-			
+			//update that they have completed this challenge
 			User.findByIdAndUpdate(message.user, {$push: {completed: message.challengeID}},
 					function (err, user) {
 						if (!err) {
