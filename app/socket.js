@@ -333,6 +333,9 @@ module.exports = function(server) {
 		//when a user submits correct code inform the loser and increment the winners' 
 		//multi player medal count and  update their elo rating
         socket.on('game:check', function(message){
+		
+			//emit game lost to the  server to reflect to losing client
+            io.sockets.connected[message.socket].emit('game:lost');
 			
 			function getUserMMR(callback){
 				var mmr  = 0;
@@ -359,9 +362,6 @@ module.exports = function(server) {
 					}
 				);
 			});			
-		
-			//emit game lost to the  server to reflect to losing client
-            io.sockets.connected[message.socket].emit('game:lost');
 			
 			//update the database for the multiplayer medal
             User.findByIdAndUpdate(message.user, {$inc: {multi: 1}},

@@ -600,6 +600,9 @@ $(document).ready(function() {
 		
 		//so user can't submit correct answer over and over
 		var clicked = true
+		
+		//so we know if the opponent has solved the answer already
+		var solved = false;
 
 		//when we submit an answer
         $('.submit-code').click(function(e) {
@@ -630,21 +633,30 @@ $(document).ready(function() {
 					if(workerResponse == 'done'){
 				
 						//calculate if the answer is correct
-						var correct = challengeDetail.calculate(finalCode);
-						//display the result (correct/incorrect) to the user
-						showResult(correct);
+						var correct = challengeDetail.calculate(finalCode);												
 						
 						//if the answer is correct emit a successful game check to server
 						if(correct == 'correct'){
 						
-							//emit a gamecheck to the server so the server can inform the challenger they have lost
-							socket.emit('game:check', {socket:challengerSocket, user: window.userId});
+							//if we haven't received a gamelost from the server
+							if(!solved){
+							
+								//display the result (correct/incorrect) to the user
+								showResult(correct);
+						
+								//emit a gamecheck to the server so the server can inform the challenger they have lost
+								socket.emit('game:check', {socket:challengerSocket, user: window.userId});
+							}
 							
 							//prevent user from re-clicking submit
 							clicked = false;
 							
 							//redirect to profile page
 							window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+						}else{
+							//display the result (correct/incorrect) to the user
+							showResult(correct);
+						
 						}
 					}else{
 						setInnerHTML("ModalTitle", "Checking Code");
@@ -658,13 +670,16 @@ $(document).ready(function() {
 		//if we receive a game:lost from the server notify 
 		//the user through a HTML modal popup that they have lost.
         socket.on('game:lost', function(){
+			//disable any further code checking
+			clicked = false;
+			solved = true;
+			
             $('#answerModal').modal('show')
             setInnerHTML('ModalTitle', 'You have Lost :(');
             setColour('ModalTitle', "red");
             setInnerHTML('ModalText', 'Your partner has finished the challenge!');
 			
-			//disable any further code checking
-			clicked = false;
+			
 			
 			//emit a an elo update to the server so the server can update our elo on a loss
 			socket.emit('game:eloupdate', {user: window.userId});
