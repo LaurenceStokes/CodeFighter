@@ -466,6 +466,7 @@ function showResultSingle(isCorrect, gold, silver, bronze){
 };
 
 
+	
 
 // =====================================
 // SOCKET.IO STUFF  ====================
@@ -481,8 +482,40 @@ $(document).ready(function() {
     // MULTIPLAYER  ========================
     // =====================================
     if (document.title === 'Multiplayer Challenge') {
-	
+		
+		window.onbeforeunload = function (e) {
+			var message = "If you leave now it will be considered a forfeit!";
+			var firefox = /Firefox[\/\s](\d+)/.test(navigator.userAgent);
 
+			if (firefox) {
+				//Add custom dialog
+				//Firefox does not accept window.showModalDialog(), window.alert(), window.confirm(), and window.prompt() furthermore
+				var dialog = document.createElement("div");
+				document.body.appendChild(dialog);
+				dialog.id = "dialog";
+				dialog.style.visibility = "hidden";
+				dialog.innerHTML = message; 
+				var left = document.body.clientWidth / 2 - dialog.clientWidth / 2;
+				dialog.style.left = left + "px";
+				dialog.style.visibility = "visible";  
+				var shadow = document.createElement("div");
+				document.body.appendChild(shadow);
+				shadow.id = "shadow";       
+				//tip with setTimeout
+				setTimeout(function () {
+					document.body.removeChild(document.getElementById("dialog"));
+					document.body.removeChild(document.getElementById("shadow"));
+				}, 0);
+			}
+
+			return message;
+		}
+		
+		window.onunload = function(){
+			$("#forfeit" ).trigger( "click" );
+		}
+			
+		var challengerLeft = false;
 
         var socket = io(), challengerSocket;
 
@@ -504,6 +537,7 @@ $(document).ready(function() {
 		
         });
 		
+		
 		//Inform user there are no available challenges
 		socket.on('game:noneAvailable', function(data) {
 		console.log('test');
@@ -514,6 +548,17 @@ $(document).ready(function() {
 			//redirect to profile page
 			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
         });
+		
+		socket.on('game:challengerLeft', function() {
+			window.onbeforeunload = null;
+			window.onunload=null;
+			console.log('game:challengerLeft');
+			challengerLeft = true;
+			$(".forfeit-clicked" ).trigger( "click" );
+			setInnerHTML("ModalTitle", "Your Challenger has Forfeited!");
+			setInnerHTML("ModalText", 'You may carry on to complete the challenge');			
+        });
+		
 		
 		//Inform user they timed out/searched for too long
 		socket.on('game:timeout', function(data) {
@@ -577,6 +622,23 @@ $(document).ready(function() {
 			
 			//get the socket for the opponent
             challengerSocket = data.socket;
+        });
+		
+		
+		//if we cancel a game
+        $('#forfeit').click(function(e) {
+			window.onbeforeunload=null;
+			window.onunload=null;
+			console.log(challengerSocket);
+			if(!challengerLeft){
+				socket.emit('game:forfeit', {user: window.userId, socket: challengerSocket}); 
+				$(".forfeit-clicked" ).trigger( "click" );
+				setInnerHTML("ModalTitle", "You Have Forfeited");
+				setInnerHTML("ModalText", 'You will be redirected in a few moments');
+				}
+			//redirect to profile page
+			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+		
         });
 
 		//when we update our editor pass this to the server to reflect changes

@@ -98,15 +98,17 @@ module.exports = function(server) {
 	//  ON CONNECTION ======================
 	// =====================================
     io.on('connection', function(socket) {
+		
 	
 		var elo = new Elo();	
 		
 		var num = 0;
 		var counter;
+		var challenger;
 		
 		function stop_count() {
-					clearInterval(counter);
-					num = 0;
+			clearInterval(counter);
+			num = 0;
 		}
 	
 		// =====================================
@@ -116,6 +118,7 @@ module.exports = function(server) {
 
 		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
+			
 			
 			function getUserCompleted(callback){
 					var completed  = [];
@@ -323,6 +326,43 @@ module.exports = function(server) {
 		//when a client clicks cancel search
 		socket.on('game:cancel', function(){
 			socket.disconnect()
+		});
+		
+		//when a client clicks forfeit or leaves challenge early deduct from their MMR
+		socket.on('game:forfeit', function(message){
+			
+			//defensive try/catch
+			try{			
+				io.sockets.connected[message.socket].emit('game:challengerLeft');				
+			}catch(e){
+				console.log('error hit');
+			}
+			
+			function getUserMMR(callback){
+				var mmr  = 0;
+				User.findOne({_id: message.user}, function (err, user) {
+					if (!err) {
+					  console.log(user.mmr);
+					  callback(null, user.mmr);
+					  return mmr;
+					} else {
+						callback({msg: "Something went wrong", err: err})
+					};
+				});
+			}
+			
+			getUserMMR(function(err, res) {
+				var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
+				User.findByIdAndUpdate(message.user, {$set: {mmr: new_usermmr}},
+					function (err, user) {
+						if (!err) {
+							console.log(user.mmr);
+						} else {
+							// error handling
+						};					
+					}
+				);
+			});	
 		});
 
 		//update the challenger's code on both screens 
@@ -577,7 +617,7 @@ module.exports = function(server) {
 			if (pos != - 1){
 				onlineUsers.splice(pos, 1);
 			}
-            console.log('user disconnected');
+			console.log('user disconnected');
         });
     });
 

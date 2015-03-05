@@ -43,7 +43,7 @@
         <![endif]-->
     </head>
     
-    <body>
+    <body onunload="forfeit();">
         <!--Navbar -->
         <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
@@ -106,6 +106,8 @@
                                 <div class="col-lg-12">
                                     </br>
                                     <a class="btn btn-danger submit-code" data-toggle="modal" href="#answerModal">Check my Code!</a>
+									<a id="forfeit" class="btn btn-danger forfeit" data-toggle="modal" href="#">Forfeit Game</a>
+									<a class="forfeit-clicked" data-toggle="modal" href="#answerModal"></a>
                                     </br>&nbsp;
                                     <p id="mp-timer">Elapsed Time: 0Hours 0Min 0Sec</p>
                                     </br>

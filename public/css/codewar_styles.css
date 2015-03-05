@@ -300,6 +300,10 @@ hr {
 	display: none;
 }
 
+.forfeit-clicked{
+	display: none;
+}
+
 .time-out{
 	display: none;
 }
