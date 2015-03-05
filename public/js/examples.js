@@ -484,9 +484,10 @@ $(document).ready(function() {
     if (document.title === 'Multiplayer Challenge') {
 		
 		window.onbeforeunload = function (e) {
-			var message = "If you leave now it will be considered a forfeit!";
+			var message = "If you leave now it will be considered a forfeit and count as a loss!";
 			var firefox = /Firefox[\/\s](\d+)/.test(navigator.userAgent);
 
+			//from stackoverflow 
 			if (firefox) {
 				//Add custom dialog
 				//Firefox does not accept window.showModalDialog(), window.alert(), window.confirm(), and window.prompt() furthermore
@@ -757,6 +758,35 @@ $(document).ready(function() {
     // SINGLEPLAYER ========================
     // =====================================
 	if (document.title === 'Single Player Challenge') {
+	
+		window.onbeforeunload = function (e) {
+			var message = "You haven't finished your challenge!";
+			var firefox = /Firefox[\/\s](\d+)/.test(navigator.userAgent);
+
+			//from stackoverflow 
+			if (firefox) {
+				//Add custom dialog
+				//Firefox does not accept window.showModalDialog(), window.alert(), window.confirm(), and window.prompt() furthermore
+				var dialog = document.createElement("div");
+				document.body.appendChild(dialog);
+				dialog.id = "dialog";
+				dialog.style.visibility = "hidden";
+				dialog.innerHTML = message; 
+				var left = document.body.clientWidth / 2 - dialog.clientWidth / 2;
+				dialog.style.left = left + "px";
+				dialog.style.visibility = "visible";  
+				var shadow = document.createElement("div");
+				document.body.appendChild(shadow);
+				shadow.id = "shadow";       
+				//tip with setTimeout
+				setTimeout(function () {
+					document.body.removeChild(document.getElementById("dialog"));
+					document.body.removeChild(document.getElementById("shadow"));
+				}, 0);
+			}
+
+			return message;
+		}
 
         var socket = io(),
             challengerSocket;
@@ -781,6 +811,20 @@ $(document).ready(function() {
 				$('.challenge').show();
 				startClock('progress1', challengeDetail.bronze);		
 			},2000);
+        });
+		
+		
+		//if we cancel a game
+        $('#forfeit').click(function(e) {
+			window.onbeforeunload=null;
+			
+			$(".forfeit-clicked" ).trigger( "click" );
+			setInnerHTML("ModalTitle", "Leaving Game...");
+			setInnerHTML("ModalText", 'You will be redirected in a few moments');
+				
+			//redirect to profile page
+			window.setTimeout( function(event) { window.location = "/profile"; }, 3000);
+		
         });
 		
 		//Inform user there are no available challenges
@@ -828,6 +872,7 @@ $(document).ready(function() {
 						var result = showResultSingle(correct, gold, silver, bronze);
 						
 						if(correct == 'correct'){
+							window.onbeforeunload = null;
 							socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
 							
 							//prevent user from re-clicking submit
