@@ -542,10 +542,14 @@ $(document).ready(function() {
         });
 
 		
-		//when the server emits a challengeAccepted take
-		//the challenge description and update html on page
+		//when the server emits a challengeAccepted tell
+		//server we're in a game
         socket.on('game:challengeAccepted', function(data) {
+			socket.emit('game:ingame', {socket: data.socket, challenge: data.challenge, mmr: data.mmr});
+		});
 		
+		//take the challenge description and update html on page
+		socket.on('game:startGame', function(data) {
 			//get the socket for the opponent
             challengerSocket = data.socket;
 		
@@ -554,7 +558,6 @@ $(document).ready(function() {
 				return message;
 			}					
 		
-			socket.emit('game:ingame');
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
             $('.finding-challenger').hide();

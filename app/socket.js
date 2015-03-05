@@ -106,7 +106,10 @@ module.exports = function(server) {
 		var counter;
 		var challenger;
 		var uid;
+		var challengerSocket;
+		var challengermmr;
 		var ingame = false;
+		var inArray = false;
 		
 		function stop_count() {
 			clearInterval(counter);
@@ -183,8 +186,7 @@ module.exports = function(server) {
 			function start_interval(number) {
 				
 					num = number;
-					var inArray = false;
-					
+		
 					counter = setInterval(function () {getUserMMR(function(err, res) {	
 					
 					num++;
@@ -271,7 +273,7 @@ module.exports = function(server) {
 										onlineUsers.splice(indice, 1); 
 										stop_count();
 										io.sockets.connected[socket.id].emit('game:challengeAccepted', {socket: challenger.socket, challenge: randChallenge, mmr: challenger.usermmr});
-										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
+										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res, challenger: true});
 									}
 								}
 							});		
@@ -322,9 +324,12 @@ module.exports = function(server) {
         });
 		
 		//update the challenger's code on both screens 
-        socket.on('game:ingame', function() {
+        socket.on('game:ingame', function(data) {
 			ingame = true;
             stop_count();
+			challengerSocket = data.socket;
+			challengermmr = data.mmr;
+			socket.emit('game:startGame', {socket: data.socket, challenge: data.challenge, mmr: data.mmr});
         });
 		
 		//when a client clicks cancel search
@@ -595,10 +600,10 @@ module.exports = function(server) {
 			if(ingame){
 				//defensive try/catch
 				try{			
-					io.sockets.connected[challenger.socket].emit('game:challengerLeft');		
+					io.sockets.connected[challengerSocket].emit('game:challengerLeft');		
 
 					getUserMMR(function(err, res) {
-						var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
+						var new_usermmr = elo.newRatingIfLost(res, challengermmr);
 						User.findByIdAndUpdate(uid, {$set: {mmr: new_usermmr}},
 							function (err, user) {
 								if (!err) {
