@@ -206,7 +206,7 @@ module.exports = function(server) {
 					//console.log('testing for acquiring challenger completed '+ challenger.usercomplete);
 				
 					//if there is no 'closest' player assume array is now empty
-					//and go straigth to putting ourselves in array
+					//and go straight to putting ourselves in array
 					if(indice < 0){
 						
 						num = 40;
@@ -611,11 +611,6 @@ module.exports = function(server) {
 		// =====================================
 		
         socket.on('disconnect', function() {
-		
-			console.log(uid);
-		
-			//stop any active searches for people who withdrew during search
-			stop_count();
 			
 			function getUserMMR(callback){
 					var mmr  = 0;
@@ -630,26 +625,30 @@ module.exports = function(server) {
 					});
 				}
 			
-			//defensive try/catch
-			try{			
-				io.sockets.connected[challenger.socket].emit('game:challengerLeft');		
+			if(num == 0){
+				//defensive try/catch
+				try{			
+					io.sockets.connected[challenger.socket].emit('game:challengerLeft');		
 
-				getUserMMR(function(err, res) {
-					var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
-					User.findByIdAndUpdate(uid, {$set: {mmr: new_usermmr}},
-						function (err, user) {
-							if (!err) {
-								console.log(user.mmr);
-							} else {
-								// error handling
-							};					
-						}
-					);
-				});	
-				
-			}catch(e){
-				console.log('error hit');
+					getUserMMR(function(err, res) {
+						var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
+						User.findByIdAndUpdate(uid, {$set: {mmr: new_usermmr}},
+							function (err, user) {
+								if (!err) {
+									console.log(user.mmr);
+								} else {
+									// error handling
+								};					
+							}
+						);
+					});	
+					
+				}catch(e){
+					console.log('error hit');
+				}
 			}
+			
+			stop_count();
 			
 			//splice array, removing socket that disconnected
 			var pos = arrayPosition(socket.id);
