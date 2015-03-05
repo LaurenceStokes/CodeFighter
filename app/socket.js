@@ -106,6 +106,7 @@ module.exports = function(server) {
 		var counter;
 		var challenger;
 		var uid;
+		var ingame = false;
 		
 		function stop_count() {
 			clearInterval(counter);
@@ -243,7 +244,7 @@ module.exports = function(server) {
 								if (randChallenge === undefined || randChallenge === null){
 									console.log('hit this one!');
 								}else{
-									if ((socket.id !== undefined || socket.id !== null) || (challenger.socket !== undefined || challenger.socket !== null)){
+									if ((socket.id !== undefined || socket.id !== null) && (challenger.socket !== undefined || challenger.socket !== null)){
 										//splice array to remove the matched challenger
 										onlineUsers.splice(indice, 1); 
 										stop_count();
@@ -265,7 +266,7 @@ module.exports = function(server) {
 								if (randChallenge === undefined || randChallenge === null){
 									console.log('hit this one!');
 								}else{
-									if ((socket.id !== undefined || socket.id !== null) || (challenger.socket!== undefined || challenger.socket !== null)){
+									if ((socket.id !== undefined || socket.id !== null) && (challenger.socket!== undefined || challenger.socket !== null)){
 										//splice array to remove the matched challenger
 										onlineUsers.splice(indice, 1); 
 										stop_count();
@@ -279,7 +280,7 @@ module.exports = function(server) {
 					}
 
 					//if we're waiting for over 40 seconds, just stick us in the array
-					else if (num >= 40 && num < 60){
+					else if (num >= 40 && num < 80){
 						if(!inArray){
 							getUserCompleted(function(err, completed) {
 									onlineUsers.push({
@@ -322,50 +323,14 @@ module.exports = function(server) {
 		
 		//update the challenger's code on both screens 
         socket.on('game:ingame', function() {
+			ingame = true;
             stop_count();
         });
 		
 		//when a client clicks cancel search
 		socket.on('game:cancel', function(){
 			socket.disconnect()
-		});
-		
-		//when a client clicks forfeit or leaves challenge early deduct from their MMR
-		socket.on('game:forfeit', function(message){
-			
-			//defensive try/catch
-			try{			
-				io.sockets.connected[message.socket].emit('game:challengerLeft');				
-			}catch(e){
-				console.log('error hit');
-			}
-			
-			function getUserMMR(callback){
-				var mmr  = 0;
-				User.findOne({_id: message.user}, function (err, user) {
-					if (!err) {
-					  console.log(user.mmr);
-					  callback(null, user.mmr);
-					  return mmr;
-					} else {
-						callback({msg: "Something went wrong", err: err})
-					};
-				});
-			}
-			
-			getUserMMR(function(err, res) {
-				var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
-				User.findByIdAndUpdate(message.user, {$set: {mmr: new_usermmr}},
-					function (err, user) {
-						if (!err) {
-							console.log(user.mmr);
-						} else {
-							// error handling
-						};					
-					}
-				);
-			});	
-		});
+		});		
 
 		//update the challenger's code on both screens 
         socket.on('game:codeupdate', function(message) {
@@ -611,6 +576,8 @@ module.exports = function(server) {
 		// =====================================
 		
         socket.on('disconnect', function() {
+		
+			stop_count();
 			
 			function getUserMMR(callback){
 					var mmr  = 0;
@@ -625,7 +592,7 @@ module.exports = function(server) {
 					});
 				}
 			
-			if(num == 0){
+			if(ingame){
 				//defensive try/catch
 				try{			
 					io.sockets.connected[challenger.socket].emit('game:challengerLeft');		
@@ -647,8 +614,7 @@ module.exports = function(server) {
 					console.log('error hit');
 				}
 			}
-			
-			stop_count();
+	
 			
 			//splice array, removing socket that disconnected
 			var pos = arrayPosition(socket.id);

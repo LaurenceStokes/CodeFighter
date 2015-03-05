@@ -546,15 +546,13 @@ $(document).ready(function() {
 		//the challenge description and update html on page
         socket.on('game:challengeAccepted', function(data) {
 		
+			//get the socket for the opponent
+            challengerSocket = data.socket;
+		
 			window.onbeforeunload = function (e) {
 				var message = "If you leave now it will be considered a forfeit and count as a loss!";
 				return message;
-			}
-		
-			window.onunload = function(){
-				$("#forfeit" ).trigger( "click" );
-			}
-			
+			}					
 		
 			socket.emit('game:ingame');
             challengeDetail = challenges[data.challenge];
@@ -601,9 +599,7 @@ $(document).ready(function() {
 			}
 					
 			timer();
-			
-			//get the socket for the opponent
-            challengerSocket = data.socket;
+				
         });
 		
 		
@@ -611,9 +607,7 @@ $(document).ready(function() {
         $('#forfeit').click(function(e) {
 			window.onbeforeunload=null;
 			window.onunload=null;
-			console.log(challengerSocket);
 			if(!challengerLeft){
-				socket.emit('game:forfeit', {user: window.userId, socket: challengerSocket}); 
 				$(".forfeit-clicked" ).trigger( "click" );
 				setInnerHTML("ModalTitle", "You Have Forfeited");
 				setInnerHTML("ModalText", 'You will be redirected in a few moments');
