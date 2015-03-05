@@ -341,8 +341,10 @@ module.exports = function(server) {
         socket.on('game:codeupdate', function(message) {
 		
 			//check if the challenger is still connected
-			if(io.sockets.sockets[message.socket]!=undefined){			
+			try{			
 				io.sockets.connected[message.socket].emit('game:codeupdated', message.code);				
+			}catch(e){
+				console.log('error');
 			}
 			
         });
@@ -351,11 +353,16 @@ module.exports = function(server) {
 		//multi player medal count and  update their elo rating
         socket.on('game:check', function(message){
 		
+			//so we don't get a loss
+			ingame = false;
+			
 			//emit game lost to the  server to reflect to losing client
 			
 			//check if the challenger is still connected
-			if(io.sockets.sockets[message.socket]!=undefined){
+			try{
 				io.sockets.connected[message.socket].emit('game:lost');
+			}catch(e){
+				console.log('error');
 			}
 			
 			//update that they have completed this challenge

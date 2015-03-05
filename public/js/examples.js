@@ -546,18 +546,16 @@ $(document).ready(function() {
 		//server we're in a game
         socket.on('game:challengeAccepted', function(data) {
 			socket.emit('game:ingame', {socket: data.socket, challenge: data.challenge, mmr: data.mmr});
+			window.onbeforeunload = function (e) {
+				var message = "If you leave now it will be considered a forfeit and count as a loss!";
+				return message;
+			}					
 		});
 		
 		//take the challenge description and update html on page
 		socket.on('game:startGame', function(data) {
 			//get the socket for the opponent
             challengerSocket = data.socket;
-		
-			window.onbeforeunload = function (e) {
-				var message = "If you leave now it will be considered a forfeit and count as a loss!";
-				return message;
-			}					
-		
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
             $('.finding-challenger').hide();
@@ -609,7 +607,6 @@ $(document).ready(function() {
 		//if we cancel a game
         $('#forfeit').click(function(e) {
 			window.onbeforeunload=null;
-			window.onunload=null;
 			if(!challengerLeft){
 				$(".forfeit-clicked" ).trigger( "click" );
 				setInnerHTML("ModalTitle", "You Have Forfeited");
@@ -682,6 +679,9 @@ $(document).ready(function() {
 							//if we haven't received a gamelost from the server
 							if(!solved){
 							
+								//stop the window onbeforeunload event;
+								window.onbeforeunload=null;
+							
 								//display the result (correct/incorrect) to the user
 								showResult(correct);
 						
@@ -714,6 +714,9 @@ $(document).ready(function() {
 			//disable any further code checking
 			clicked = false;
 			solved = true;
+			
+			//stop the window onbeforeunload event
+			window.onbeforeunload=null;
 			
             $('#answerModal').modal('show')
             setInnerHTML('ModalTitle', 'You have Lost :(');
