@@ -327,7 +327,12 @@ module.exports = function(server) {
 
 		//update the challenger's code on both screens 
         socket.on('game:codeupdate', function(message) {
-            io.sockets.connected[message.socket].emit('game:codeupdated', message.code);
+		
+			//check if the challenger is still connected
+			if(io.sockets.sockets[message.socket]!=undefined){			
+				io.sockets.connected[message.socket].emit('game:codeupdated', message.code);				
+			}
+			
         });
 
 		//when a user submits correct code inform the loser and increment the winners' 
@@ -335,7 +340,11 @@ module.exports = function(server) {
         socket.on('game:check', function(message){
 		
 			//emit game lost to the  server to reflect to losing client
-            io.sockets.connected[message.socket].emit('game:lost');
+			
+			//check if the challenger is still connected
+			if(io.sockets.sockets[message.socket]!=undefined){
+				io.sockets.connected[message.socket].emit('game:lost');
+			}
 			
 			//update that they have completed this challenge
 			User.findByIdAndUpdate(message.user, {$push: {completed: message.challengeID}},
