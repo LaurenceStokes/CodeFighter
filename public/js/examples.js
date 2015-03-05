@@ -483,38 +483,6 @@ $(document).ready(function() {
     // =====================================
     if (document.title === 'Multiplayer Challenge') {
 		
-		window.onbeforeunload = function (e) {
-			var message = "If you leave now it will be considered a forfeit and count as a loss!";
-			var firefox = /Firefox[\/\s](\d+)/.test(navigator.userAgent);
-
-			//from stackoverflow 
-			if (firefox) {
-				//Add custom dialog
-				//Firefox does not accept window.showModalDialog(), window.alert(), window.confirm(), and window.prompt() furthermore
-				var dialog = document.createElement("div");
-				document.body.appendChild(dialog);
-				dialog.id = "dialog";
-				dialog.style.visibility = "hidden";
-				dialog.innerHTML = message; 
-				var left = document.body.clientWidth / 2 - dialog.clientWidth / 2;
-				dialog.style.left = left + "px";
-				dialog.style.visibility = "visible";  
-				var shadow = document.createElement("div");
-				document.body.appendChild(shadow);
-				shadow.id = "shadow";       
-				//tip with setTimeout
-				setTimeout(function () {
-					document.body.removeChild(document.getElementById("dialog"));
-					document.body.removeChild(document.getElementById("shadow"));
-				}, 0);
-			}
-
-			return message;
-		}
-		
-		window.onunload = function(){
-			$("#forfeit" ).trigger( "click" );
-		}
 			
 		var challengerLeft = false;
 
@@ -528,6 +496,8 @@ $(document).ready(function() {
 		
 		//if we cancel an active search
         $('.cancel-search').click(function(e) {
+			window.onbeforeunload = null;
+			window.onunload=null;
 			socket.emit('game:cancel');
 			setTimeout(function(){ 
 				$('.finding-challenger').hide();
@@ -562,7 +532,7 @@ $(document).ready(function() {
 		
 		
 		//Inform user they timed out/searched for too long
-		socket.on('game:timeout', function(data) {
+		socket.on('game:timeOut', function(data) {
 			setTimeout(function(){ 
 				$('.finding-challenger').hide();
 				$('.time-out').show();
@@ -575,6 +545,17 @@ $(document).ready(function() {
 		//when the server emits a challengeAccepted take
 		//the challenge description and update html on page
         socket.on('game:challengeAccepted', function(data) {
+		
+			window.onbeforeunload = function (e) {
+				var message = "If you leave now it will be considered a forfeit and count as a loss!";
+				return message;
+			}
+		
+			window.onunload = function(){
+				$("#forfeit" ).trigger( "click" );
+			}
+			
+		
 			socket.emit('game:ingame');
             challengeDetail = challenges[data.challenge];
             $('.challenge-description').text(challengeDetail.description);
@@ -759,35 +740,6 @@ $(document).ready(function() {
     // =====================================
 	if (document.title === 'Single Player Challenge') {
 	
-		window.onbeforeunload = function (e) {
-			var message = "You haven't finished your challenge!";
-			var firefox = /Firefox[\/\s](\d+)/.test(navigator.userAgent);
-
-			//from stackoverflow 
-			if (firefox) {
-				//Add custom dialog
-				//Firefox does not accept window.showModalDialog(), window.alert(), window.confirm(), and window.prompt() furthermore
-				var dialog = document.createElement("div");
-				document.body.appendChild(dialog);
-				dialog.id = "dialog";
-				dialog.style.visibility = "hidden";
-				dialog.innerHTML = message; 
-				var left = document.body.clientWidth / 2 - dialog.clientWidth / 2;
-				dialog.style.left = left + "px";
-				dialog.style.visibility = "visible";  
-				var shadow = document.createElement("div");
-				document.body.appendChild(shadow);
-				shadow.id = "shadow";       
-				//tip with setTimeout
-				setTimeout(function () {
-					document.body.removeChild(document.getElementById("dialog"));
-					document.body.removeChild(document.getElementById("shadow"));
-				}, 0);
-			}
-
-			return message;
-		}
-
         var socket = io(),
             challengerSocket;
 		
@@ -804,6 +756,14 @@ $(document).ready(function() {
 				//timeout to switch the favicon to the 'in game' favicon (chrome bug fix: https://code.google.com/p/chromium/issues/detail?id=99549)
 				window.setTimeout( function(event) { favicon.change("img/favicon2.ico"); }, 110);
 				
+				window.onbeforeunload = function (e) {
+					var message = "You haven't finished your challenge!";
+					return message;
+				}
+		
+				window.onunload = function(){
+					$("#forfeit" ).trigger( "click" );
+				}
 				
 				challengeDetail = challenges[data.challenge];
 				$('.challenge-description').text(challengeDetail.description);
@@ -860,9 +820,7 @@ $(document).ready(function() {
 				//console.log(workerResponse);
 	
 				var myVar;
-
-				myVar = setTimeout(timeout, 3000);
-
+				
 				function timeout(){
 					if(workerResponse == 'done'){
 						var correct = challengeDetail.calculate(finalCode);
@@ -873,6 +831,7 @@ $(document).ready(function() {
 						
 						if(correct == 'correct'){
 							window.onbeforeunload = null;
+							window.unload = null;
 							socket.emit('game:singleCheck', {user: window.userId, res:result, challengeID: challengeDetail.challengeId});
 							
 							//prevent user from re-clicking submit
@@ -887,7 +846,13 @@ $(document).ready(function() {
 						worker.terminate();
 					}
 				}
+				
+				myVar = setTimeout(timeout, 3000);
 			}
+
+				
+
+				
 		});
     };
 

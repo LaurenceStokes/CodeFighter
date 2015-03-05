@@ -105,6 +105,7 @@ module.exports = function(server) {
 		var num = 0;
 		var counter;
 		var challenger;
+		var uid;
 		
 		function stop_count() {
 			clearInterval(counter);
@@ -119,6 +120,7 @@ module.exports = function(server) {
 		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
 			
+			uid = userId;
 			
 			function getUserCompleted(callback){
 					var completed  = [];
@@ -293,8 +295,8 @@ module.exports = function(server) {
 					}
 					//if we're waiting for too long, disconnect us
 					else if (num >=80){
-						io.sockets.connected[socket.id].emit('game:timeOut');	
-						socket.disconnect();
+						io.sockets.connected[socket.id].emit('game:timeOut');
+						stop_count();
 					}
 				
 				})},1000)        
@@ -609,8 +611,45 @@ module.exports = function(server) {
 		// =====================================
 		
         socket.on('disconnect', function() {
+		
+			console.log(uid);
+		
 			//stop any active searches for people who withdrew during search
 			stop_count();
+			
+			function getUserMMR(callback){
+					var mmr  = 0;
+					User.findOne({_id: uid}, function (err, user) {
+						if (!err) {
+						  console.log(user.mmr);
+						  callback(null, user.mmr);
+						  return mmr;
+						} else {
+							callback({msg: "Something went wrong", err: err})
+						};
+					});
+				}
+			
+			//defensive try/catch
+			try{			
+				io.sockets.connected[challenger.socket].emit('game:challengerLeft');		
+
+				getUserMMR(function(err, res) {
+					var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
+					User.findByIdAndUpdate(uid, {$set: {mmr: new_usermmr}},
+						function (err, user) {
+							if (!err) {
+								console.log(user.mmr);
+							} else {
+								// error handling
+							};					
+						}
+					);
+				});	
+				
+			}catch(e){
+				console.log('error hit');
+			}
 			
 			//splice array, removing socket that disconnected
 			var pos = arrayPosition(socket.id);
