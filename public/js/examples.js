@@ -465,9 +465,6 @@ function showResultSingle(isCorrect, gold, silver, bronze){
 		return result;
 };
 
-
-	
-
 // =====================================
 // SOCKET.IO STUFF  ====================
 // =====================================
@@ -684,9 +681,12 @@ $(document).ready(function() {
 							
 								//display the result (correct/incorrect) to the user
 								showResult(correct);
+								
+								//play the audio on win
+								new Audio('winner.mp3').play()
 						
 								//emit a gamecheck to the server so the server can inform the challenger they have lost
-								socket.emit('game:check', {socket:challengerSocket, user: window.userId, challengeID: challengeDetail.challengeId});
+								socket.emit('game:check', {socket:challengerSocket, user: window.userId, challengeID: challengeDetail.challengeId});	
 							}
 							
 							//prevent user from re-clicking submit
@@ -714,6 +714,9 @@ $(document).ready(function() {
 			//disable any further code checking
 			clicked = false;
 			solved = true;
+			
+			//play the audio on loss
+			new Audio('loser.mp3').play()
 			
 			//stop the window onbeforeunload event
 			window.onbeforeunload=null;
