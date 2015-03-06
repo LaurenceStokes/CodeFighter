@@ -26,7 +26,11 @@ function setEditor(editorname) {
 //setEditor("editorthree");
 
 
-//set the editors (hard coded for the examples)
+//Set the editors (Examples are hardcoded)
+
+var started1 = false;
+var started2 = false;
+var started3 = false;
 
 //EXAMPLES
 if (document.getElementById("editorone")) {
@@ -34,10 +38,17 @@ if (document.getElementById("editorone")) {
     editorone.setTheme("ace/theme/kuroir");
     editorone.getSession().setMode("ace/mode/javascript");
 	
-	//if a user changes anything, start clock
+	
+	//can't submit correct answer without having a timer running
 	editorone.getSession().on('change', function(e) {
-		startClock('progress1');
+		if (!started1) {
+			startClock('progress1');
+			started1 = true;
+			started2 = false;
+			started3 = false;
+		}
 	});
+
 }
 
 
@@ -45,8 +56,15 @@ if (document.getElementById("editortwo")) {
     var editortwo = ace.edit("editortwo");
     editortwo.setTheme("ace/theme/kuroir");
     editortwo.getSession().setMode("ace/mode/javascript");
+	
+	//can't submit correct answer without having a timer running
 	editortwo.getSession().on('change', function(e) {
-		startClock('progress2');
+		if (!started2) {
+			startClock('progress2');
+			started2 = true;
+			started1 = false;
+			started3 = false;
+		}
 	});
 }
 
@@ -54,8 +72,15 @@ if (document.getElementById("editorthree")) {
     var editorthree = ace.edit("editorthree");
     editorthree.setTheme("ace/theme/kuroir");
     editorthree.getSession().setMode("ace/mode/javascript");
+	
+	//can't submit correct answer without having a timer running
 	editorthree.getSession().on('change', function(e) {
-		startClock('progress3');
+		if (!started3) {
+			startClock('progress3');
+			started3 = true;
+			started1 = false;
+			started2 = false;
+		}
 	});
 }
 //END EXAMPLES
