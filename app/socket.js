@@ -328,7 +328,7 @@ module.exports = function(server) {
 
         });
 		
-		//update the challenger's code on both screens 
+		//when we recieve a message that we've been matched
         socket.on('game:ingame', function(data) {
 			ingame = true;
 			ingameUsers.push(1);
