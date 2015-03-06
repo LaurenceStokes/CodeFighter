@@ -552,6 +552,14 @@ $(document).ready(function() {
         });
 		
 		
+		//Inform user of users searching
+		socket.on('game:onlineUsers', function(data) {
+			//$("#onlineusers").delay(200).animate({"opacity": "1"}, 300);
+			$(".countdown").delay(200).animate({"opacity": "1"}, 300);
+			$('#onlineusers').html("Current Users Online = [<span class='countdown'>"+data.onlineusers+ "</span>]</br> Users Searching = [<span class='countdown'>"+(data.onlineusers - data.ingameusers) + "</span>]</br> Users in game = [<span class='countdown'>"+data.ingameusers+"</span>]");			 
+        });
+		
+		
 		//Inform user there are no available challenges
 		socket.on('game:noneAvailable', function(data) {
 		console.log('test');

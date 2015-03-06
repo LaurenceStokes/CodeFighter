@@ -4,6 +4,7 @@
 var io = require('socket.io'),
     User = require('../app/models/user'),
     onlineUsers = [],
+	ingameUsers = [],
 	
 	//define the number of challenges
 	numChallenges = 3;
@@ -123,6 +124,8 @@ module.exports = function(server) {
 
 		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
+		
+			io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length});
 			
 			uid = userId;
 			
@@ -188,6 +191,8 @@ module.exports = function(server) {
 					num = number;
 		
 					counter = setInterval(function () {getUserMMR(function(err, res) {	
+					
+					io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length});
 					
 					num++;
 					
@@ -326,6 +331,7 @@ module.exports = function(server) {
 		//update the challenger's code on both screens 
         socket.on('game:ingame', function(data) {
 			ingame = true;
+			ingameUsers.push(1);
             stop_count();
 			challengerSocket = data.socket;
 			challengermmr = data.mmr;
@@ -355,6 +361,9 @@ module.exports = function(server) {
 		
 			//so we don't get a loss
 			ingame = false;
+			
+			//remove us from in game array
+			ingameUsers.splice(-1,1);
 			
 			//emit game lost to the  server to reflect to losing client
 			
@@ -606,9 +615,10 @@ module.exports = function(server) {
 			
 			if(ingame){
 				//defensive try/catch
+				ingameUsers.splice(-1,1);
+				
 				try{			
-					io.sockets.connected[challengerSocket].emit('game:challengerLeft');		
-
+					io.sockets.connected[challengerSocket].emit('game:challengerLeft');	
 					getUserMMR(function(err, res) {
 						var new_usermmr = elo.newRatingIfLost(res, challengermmr);
 						User.findByIdAndUpdate(uid, {$set: {mmr: new_usermmr}},
