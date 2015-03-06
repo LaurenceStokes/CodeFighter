@@ -320,7 +320,7 @@ function calculateOne() {
 
     //calculate the input, passing the relevant ACE editor object as an object, the test condition as a string, and the two strings referring 
     //to the modal text and title html IDs respectively
-    calculate(editor, 'test(rand1,rand2) == rand1 * rand2;', 'ModalText', 'ModalTitle', 15, 30, 45);
+    calculate(editorone, 'test(rand1,rand2) == rand1 * rand2;', 'ModalText', 'ModalTitle', 15, 30, 45);
 }
 
 
