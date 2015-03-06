@@ -5,7 +5,7 @@ var challenges = [
 		challengeId: 0,
 		title: 'Test One',
 		description: 'Write a function, called "test", that takes two explicit parameters, "a" and "b" and returns the result of "a * b"',
-		calculate: function(userAnswer) {
+		calculate: function(userAnswer, window, parent, document) {
 
 		try{
 			//get two number betweens 1 and 100 to test
@@ -32,7 +32,7 @@ var challenges = [
 		challengeId: 1,
 		title: 'Test Two',
 		description: "Write a function, called 'test', that takes two explicit parameters, 'a' and 'b' and returns the result of 'a^b'",
-		calculate: function(userAnswer) {
+		calculate: function(userAnswer, window, parent, document) {
 
 		try{
 			//get two number betweens 1 and 100 to test
@@ -60,7 +60,7 @@ var challenges = [
 		challengeId: 2,
 		title: 'Test Three',
 		description: "Write a function, called 'test', that takes one explicit parameter, 'n', and returns the sum of all the primes up to n ; e.g. test(5) would return 28 (2 + 3 + 5 + 7 + 11 )!",
-		calculate: function(userAnswer) {
+		calculate: function(userAnswer, window, parent, document) {
 
 		try{
 		

@@ -102,16 +102,15 @@ if (document.getElementById("challenger")) {
 
 
 /**function to return focus to editor (doesn't work :<)
- **/
 function returnToEditor(editorname) {
     /**var currline = editorname.getSelectionRange().start.row;
     console.log(currline);
     editorname.gotoLine(currline+1); //Go to current line + 1 (the actual current line)
     editorname.navigateLineEnd() // go the end of that line
     editorname.focus(); //To focus the ace editor
-    editorname.setReadOnly(false);**/
+    editorname.setReadOnly(false);
     editorname.focus();
-}
+} **/
 
 
 // =====================================
@@ -375,7 +374,8 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
 
 		myVar = setTimeout(timeout, 3000);
 
-	function timeout(){
+	function timeout(window, parent, document){
+	
 	if(workerResponse == 'done'){
 
     //can't submit correct answer without having a timer running

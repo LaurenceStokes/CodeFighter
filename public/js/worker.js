@@ -18,7 +18,7 @@ self.addEventListener('message', function(e) {
 		case 'stop':
 		
 			self.postMessage('WORKER STOPPED');
-			self.close(); // Terminates the worke'r.
+			self.close(); // Terminates the worker.
 			break;
 		  
 		default:
