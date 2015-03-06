@@ -26,12 +26,18 @@ function setEditor(editorname) {
 //setEditor("editorthree");
 
 
-//set the editors (hard coded for the minute)
+//set the editors (hard coded for the examples)
 
-if (document.getElementById("editor")) {
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/kuroir");
-    editor.getSession().setMode("ace/mode/javascript");
+//EXAMPLES
+if (document.getElementById("editorone")) {
+    var editorone = ace.edit("editorone");
+    editorone.setTheme("ace/theme/kuroir");
+    editorone.getSession().setMode("ace/mode/javascript");
+	
+	//if a user changes anything, start clock
+	editorone.getSession().on('change', function(e) {
+		startClock('progress1');
+	});
 }
 
 
@@ -39,13 +45,28 @@ if (document.getElementById("editortwo")) {
     var editortwo = ace.edit("editortwo");
     editortwo.setTheme("ace/theme/kuroir");
     editortwo.getSession().setMode("ace/mode/javascript");
+	editortwo.getSession().on('change', function(e) {
+		startClock('progress2');
+	});
 }
 
 if (document.getElementById("editorthree")) {
     var editorthree = ace.edit("editorthree");
     editorthree.setTheme("ace/theme/kuroir");
     editorthree.getSession().setMode("ace/mode/javascript");
+	editorthree.getSession().on('change', function(e) {
+		startClock('progress3');
+	});
 }
+//END EXAMPLES
+
+
+if (document.getElementById("editor")) {
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/kuroir");
+    editor.getSession().setMode("ace/mode/javascript");
+}
+
 
 if (document.getElementById("challenger")) {
     var challenger = ace.edit("challenger");
@@ -332,7 +353,7 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
 	function timeout(){
 	if(workerResponse == 'done'){
 
-    //can't submit correct answer without having first clicked start. :> (for examples only)
+    //can't submit correct answer without having a timer running
     if (typeof clock != "undefined" && typeof progress != "undefined") {
 	
 
@@ -370,7 +391,7 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
         }
 
     } else {
-        setInnerHTML(modalid, 'Please click start first');
+        setInnerHTML(modalid, 'There is no timer running!');
     }
 	}else{
 		setInnerHTML(modaltitleid, "Checking Code");
@@ -567,15 +588,17 @@ $(document).ready(function() {
 
 			//timer function to countdown to the match starting
 			function timer(){
-				count=count-1;				
-					
+				count=count-1;	
+				
+				//play the countdown music
+				new Audio('cd'+count+'.mp3').play()
+				
 				if (count <= 0){
 					clearInterval(counter);
 					Tinycon.setBubble(0);
 					
 					//timeout to switch the favicon to the 'in game' favicon (chrome bug fix: https://code.google.com/p/chromium/issues/detail?id=99549)
 					window.setTimeout( function(event) { favicon.change("img/favicon2.ico"); }, 110);
-					
 					$('.challenge-found').hide();
 					$('.challenge').show();	
 					return;
