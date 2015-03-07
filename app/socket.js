@@ -5,6 +5,7 @@ var io = require('socket.io'),
     User = require('../app/models/user'),
     onlineUsers = [],
 	ingameUsers = [],
+	searchingUsers = [],
 	
 	//define the number of challenges
 	numChallenges = 3;
@@ -110,6 +111,7 @@ module.exports = function(server) {
 		var challengerSocket;
 		var challengermmr;
 		var ingame = false;
+		var searching = false;
 		var inArray = false;
 		
 		function stop_count() {
@@ -125,7 +127,9 @@ module.exports = function(server) {
 		//when a client asks for a multiplayer game
         socket.on('game:invite', function(userId) {
 		
-			io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length});
+			searchingUsers.push(1);
+			searching = true;
+			io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length, searchingusers: searchingUsers.length});
 			
 			uid = userId;
 			
@@ -192,7 +196,7 @@ module.exports = function(server) {
 		
 					counter = setInterval(function () {getUserMMR(function(err, res) {	
 					
-					io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length});
+					io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length, searchingusers: searchingUsers.length});
 					
 					num++;
 					
@@ -331,7 +335,9 @@ module.exports = function(server) {
 		//when we recieve a message that we've been matched
         socket.on('game:ingame', function(data) {
 			ingame = true;
+			searching = false;
 			ingameUsers.push(1);
+			searchingUsers.splice(-1,1);
             stop_count();
 			challengerSocket = data.socket;
 			challengermmr = data.mmr;
@@ -614,6 +620,10 @@ module.exports = function(server) {
 						};
 					});
 				}
+				
+			if (searching){
+				searchingUsers.splice(-1,1);
+			}
 			
 			if(ingame){
 				//defensive try/catch

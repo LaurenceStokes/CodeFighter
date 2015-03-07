@@ -556,7 +556,7 @@ $(document).ready(function() {
 		socket.on('game:onlineUsers', function(data) {
 			//$("#onlineusers").delay(200).animate({"opacity": "1"}, 300);
 			$(".countdown").delay(200).animate({"opacity": "1"}, 300);
-			$('#onlineusers').html("Current Users Online = [<span class='countdown'>"+data.onlineusers+ "</span>]</br> Users Searching = [<span class='countdown'>"+(data.onlineusers - data.ingameusers) + "</span>]</br> Users in game = [<span class='countdown'>"+data.ingameusers+"</span>]");			 
+			$('#onlineusers').html("Current Users Online = [<span class='countdown'>"+data.onlineusers+ "</span>]</br> Users Searching = [<span class='countdown'>"+data.searchingusers + "</span>]</br> Users in game = [<span class='countdown'>"+data.ingameusers+"</span>]");			 
         });
 		
 		
@@ -819,10 +819,6 @@ $(document).ready(function() {
 					var message = "You haven't finished your challenge!";
 					return message;
 				}
-		
-				window.onunload = function(){
-					$("#forfeit" ).trigger( "click" );
-				}
 				
 				challengeDetail = challenges[data.challenge];
 				$('.challenge-description').text(challengeDetail.description);
@@ -914,7 +910,10 @@ $(document).ready(function() {
 				
 		});
     };
-
+	
+	if (document.title === 'Profile Page') {
+        var socket = io();
+	};
 
 });
 
