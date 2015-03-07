@@ -498,6 +498,8 @@ module.exports = function(server) {
 					io.sockets.connected[socket.id].emit('game:noneAvailable');		
 				}
 				else{
+					ingame = true;
+					ingameUsers.push(1);
 					io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});
 				}
 			})
