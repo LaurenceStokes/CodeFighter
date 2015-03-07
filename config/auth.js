@@ -1,3 +1,11 @@
+/* ========================================================================
+ * CodeFighter authentication
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * Modified from: https://scotch.io/collections/easy-node-authentication
+ * ======================================================================== */
+
+
 // config/auth.js
 
 // expose our config directly to our application using module.exports

@@ -1,3 +1,11 @@
+/* ========================================================================
+ * CodeFighter routes
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * Modified from: https://scotch.io/collections/easy-node-authentication
+ * ======================================================================== */
+
+
 // app/routes.js
 module.exports = function(app, passport, server) {
 

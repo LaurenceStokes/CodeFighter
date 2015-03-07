@@ -1,3 +1,11 @@
+/* ========================================================================
+ * CodeFighter passport authentication strategies
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * Modified from: https://scotch.io/collections/easy-node-authentication
+ * ======================================================================== */
+
+
 // config/passport.js
 
 // load all the things we need

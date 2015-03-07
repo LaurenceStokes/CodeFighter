@@ -1,3 +1,9 @@
+/* ========================================================================
+ * CodeFighter Socket.io Code
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * ======================================================================== */
+
 'use strict';
 
 //setup variables
@@ -626,9 +632,9 @@ module.exports = function(server) {
 			}
 			
 			if(ingame){
-				//defensive try/catch
 				ingameUsers.splice(-1,1);
 				
+				//defensive try/catch
 				try{			
 					io.sockets.connected[challengerSocket].emit('game:challengerLeft');	
 					getUserMMR(function(err, res) {

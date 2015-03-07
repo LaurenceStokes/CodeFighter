@@ -1,3 +1,11 @@
+/* ========================================================================
+ * CodeFighter user model
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * Modified from: https://scotch.io/collections/easy-node-authentication
+ * ======================================================================== */
+
+
 // app/models/user.js
 // load the things we need
 var mongoose = require('mongoose');

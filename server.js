@@ -1,3 +1,11 @@
+/* ========================================================================
+ * CodeFighter server logic
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * Modified from: https://scotch.io/collections/easy-node-authentication
+ * ======================================================================== */
+
+
 // server.js
 
 // set up ======================================================================
@@ -30,7 +38,7 @@ app.configure(function() {
 
     // required for passport
     app.use(express.session({
-        secret: 'ilovescotchscotchyscotchscotch'
+        secret: 'LaurenceFYP'
     })); // session secret
     app.use(passport.initialize());
     app.use(passport.session()); // persistent login sessions

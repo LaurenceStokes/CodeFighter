@@ -1,3 +1,9 @@
+/* ========================================================================
+ * CodeFighter worker instance code
+ * ========================================================================
+ * Copyright 2014 Laurence Stokes
+ * ======================================================================== */
+
 //worker instance to prevent infinite loops
 
 self.addEventListener('message', function(e) {
