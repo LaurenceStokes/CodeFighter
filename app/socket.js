@@ -106,7 +106,7 @@ module.exports = function(server) {
 	//  ON CONNECTION ======================
 	// =====================================
     io.on('connection', function(socket) {
-		
+			
 	
 		var elo = new Elo();	
 		
@@ -119,6 +119,35 @@ module.exports = function(server) {
 		var ingame = false;
 		var searching = false;
 		var inArray = false;
+		
+		//get the completed challenges for the current user
+		function getUserCompleted(callback, userid){
+			var completed  = [];
+			
+			User.findOne({_id: userid}, function (err, user) {
+				if (!err) {
+					completed = user.toObject().completed;
+					callback(null, completed);
+				} else {
+					callback({msg: "Something went wrong", err: err})
+				};
+			});			
+		}
+			
+		//get the mmr for the current user
+		function getUserMMR(callback, userid){
+			var mmr  = 0;
+			User.findOne({_id: userid}, function (err, user) {
+				if (!err) {
+				  //console.log(user.mmr); (Was for testing)
+				  mmr = user.toObject().mmr;
+				  callback(null, mmr);
+				  return mmr;
+				} else {
+					callback({msg: "Something went wrong", err: err})
+				};
+			});
+		}
 		
 		function stop_count() {
 			clearInterval(counter);
@@ -138,44 +167,7 @@ module.exports = function(server) {
 			io.sockets.connected[socket.id].emit('game:onlineUsers',  {onlineusers: io.engine.clientsCount, ingameusers: ingameUsers.length, searchingusers: searchingUsers.length});
 			
 			uid = userId;
-			
-			function getUserCompleted(callback){
-					var completed  = [];
-					
-					User.findOne({_id: userId}, function (err, user) {
-						if (!err) {
-						  console.log(user.completed);
-						  callback(null, user.completed);
-						  return completed;
-						} else {
-							callback({msg: "Something went wrong", err: err})
-						};
-					});
-			}
-			
-			/**
-			getUserCompleted(function(err, completed) {
-				var randChallenge = getRandomExcluding(completed);
-				if (randChallenge === undefined || randChallenge === null){
-					console.log('hit me');
-					io.sockets.connected[socket.id].emit('game:noneAvailable');	
-				}
-			});**/
-			
-			//get the mmr for the current user
-			function getUserMMR(callback){
-				var mmr  = 0;
-				User.findOne({_id: userId}, function (err, user) {
-					if (!err) {
-					  //console.log(user.mmr); (Was for testing)
-					  callback(null, user.mmr);
-					  return mmr;
-					} else {
-						callback({msg: "Something went wrong", err: err})
-					};
-				});
-			}
-			
+						
 			//function to get the closest item from an array
 			//modified from: http://stackoverflow.com/questions/8584902/get-closet-number-out-of-array
 			function closest (num, arr) {
@@ -213,7 +205,7 @@ module.exports = function(server) {
 							io.sockets.connected[socket.id].emit('game:noneAvailable');
 							stop_count();
 						}
-					});
+					}, uid);
 					
 					//get the closest ranked player from the existing onlineusers array
 					var indice = closest(res, onlineUsers);
@@ -249,7 +241,7 @@ module.exports = function(server) {
 										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
 									}
 								}
-							});							
+							}, uid);							
 						}
 					}else if(num < 20){
 						if((res <= challenger.usermmr + 50)  && res >= (challenger.usermmr -50)){ 
@@ -269,7 +261,7 @@ module.exports = function(server) {
 										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res });
 									}
 								}
-							});		
+							}, uid);		
 							
 						}
 					}
@@ -291,7 +283,7 @@ module.exports = function(server) {
 										io.sockets.connected[challenger.socket].emit('game:challengeAccepted', {socket: socket.id, challenge: randChallenge, mmr: res, challenger: true});
 									}
 								}
-							});		
+							}, uid);		
 							
 						}
 					}
@@ -301,13 +293,13 @@ module.exports = function(server) {
 						if(!inArray){
 							getUserCompleted(function(err, completed) {
 									onlineUsers.push({
-									user: userId,
+									user: uid,
 									socket: socket.id,
 									usermmr: res,
 									usercomplete: completed,
 									inGame: false
 									});
-								});
+								}, uid);
 							inArray = true;
 						}
 					}
@@ -317,7 +309,7 @@ module.exports = function(server) {
 						stop_count();
 					}
 				
-				})},1000)        
+				},uid)},1000)        
 			}
 					
 			
@@ -397,18 +389,6 @@ module.exports = function(server) {
 					}
 			);
 			
-			function getUserMMR(callback){
-				var mmr  = 0;
-				User.findOne({_id: message.user}, function (err, user) {
-					if (!err) {
-					  console.log(user.mmr);
-					  callback(null, user.mmr);
-					  return mmr;
-					} else {
-						callback({msg: "Something went wrong", err: err})
-					};
-				});
-			}
 			
 			getUserMMR(function(err, res) {
 				var new_usermmr = elo.newRatingIfWon(res, challenger.usermmr);
@@ -421,7 +401,7 @@ module.exports = function(server) {
 						};					
 					}
 				);
-			});			
+			}, uid);			
 			
 			//update the database for the multiplayer medal
             User.findByIdAndUpdate(message.user, {$inc: {multi: 1}},
@@ -450,18 +430,6 @@ module.exports = function(server) {
 		//if we recieve an eloupdate message (on a loss) we calculate our new elo and update it as required
 		socket.on('game:eloupdate', function(message){
 			
-			function getUserMMR(callback){
-				var mmr  = 0;
-				User.findOne({_id: message.user}, function (err, user) {
-					if (!err) {
-					  console.log(user.mmr);
-					  callback(null, user.mmr);
-					  return mmr;
-					} else {
-						callback({msg: "Something went wrong", err: err})
-					};
-				});
-			}
 			
 			getUserMMR(function(err, res) {
 				var new_usermmr = elo.newRatingIfLost(res, challenger.usermmr);
@@ -474,7 +442,7 @@ module.exports = function(server) {
 						};					
 					}
 				);
-			});	
+			}, uid);	
 
 			
 		});
@@ -485,22 +453,7 @@ module.exports = function(server) {
 		
 		//when a client requests a singleplayer game
 		socket.on('game:single', function(challenge) {
-		
-		
-			function getUserCompleted(callback){
-					var completed  = [];
 					
-					User.findOne({_id: challenge.user}, function (err, user) {
-						if (!err) {
-						  console.log(user.completed);
-						  callback(null, user.completed);
-						  return completed;
-						} else {
-							callback({msg: "Something went wrong", err: err})
-						};
-					});
-			}
-				
 			
 			getUserCompleted(function(err, completed) {
 				var randChallenge = getRandomExcluding(completed);
@@ -514,7 +467,7 @@ module.exports = function(server) {
 					ingameUsers.push(1);
 					io.sockets.connected[socket.id].emit('game:singleAccepted', {challenge: randChallenge});
 				}
-			})
+			}, challenge.user)
 		
 			//get a random challenge
 			//var randChallenge = getRandomChallenge();
@@ -614,18 +567,6 @@ module.exports = function(server) {
 		
 			stop_count();
 			
-			function getUserMMR(callback){
-					var mmr  = 0;
-					User.findOne({_id: uid}, function (err, user) {
-						if (!err) {
-						  console.log(user.mmr);
-						  callback(null, user.mmr);
-						  return mmr;
-						} else {
-							callback({msg: "Something went wrong", err: err})
-						};
-					});
-				}
 				
 			if (searching){
 				searchingUsers.splice(-1,1);
@@ -648,7 +589,7 @@ module.exports = function(server) {
 								};					
 							}
 						);
-					});	
+					}, uid);	
 					
 				}catch(e){
 					console.log('error hit');
