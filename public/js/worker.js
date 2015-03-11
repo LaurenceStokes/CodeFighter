@@ -19,7 +19,8 @@ self.addEventListener('message', function(e) {
 			eval(data.msg + 'test.call()');
 			self.postMessage('done');
 		}catch(e){
-			self.postMessage(JSON.stringify(e));
+			//if we catch an error, we know it's not gone infinite...
+			self.postMessage('done');
 		}
 		break;
 			 
