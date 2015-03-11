@@ -357,6 +357,7 @@ award gold silver and bronze.
 **/
 function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, bronze) {
 	
+	setColour(modaltitleid, "red");
 	setInnerHTML("ModalTitle", "Processing your code...");
 	setInnerHTML("ModalText", '<img class="img-responsive img-rounded center-block" src="img/loadingsmall.gif">');
 	
@@ -399,12 +400,10 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
                 setColour(modaltitleid, "green");
             } else {
                 setInnerHTML(modaltitleid, "Incorrect");
-                setColour(modaltitleid, "red");
                 setInnerHTML(modalid, "Hey, it didn't work this time - have another go and try again!");
             }
         } catch (e) {
             setInnerHTML(modaltitleid, 'Incorrect');
-            setColour(modaltitleid, "red");
             if (e instanceof SyntaxError) {
                 setInnerHTML(modalid, 'It looks like you have an error!<br>' + e);
             } else if (e instanceof ReferenceError) {
@@ -420,7 +419,7 @@ function calculate(editorname, testcond, modalid, modaltitleid, gold, silver, br
     }
 	}else{
 		setInnerHTML(modaltitleid, "Checking Code");
-		setInnerHTML(modalid, "Looks like you have an infite loop, please check your code!");
+		setInnerHTML(modalid, "Looks like you have an infinite loop, please check your code!");
 		worker.terminate();
 	}
 	}

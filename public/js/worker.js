@@ -14,10 +14,12 @@ self.addEventListener('message', function(e) {
 		case 'start':
 		
 		try{
-			eval(data.msg);
+			//make sure we actually invoke test function. If test() doesn't
+			//exist user will get a nice reference error.
+			eval(data.msg + 'test.call()');
 			self.postMessage('done');
 		}catch(e){
-			self.postMessage('done');
+			self.postMessage(JSON.stringify(e));
 		}
 		break;
 			 
