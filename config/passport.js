@@ -13,6 +13,10 @@ var LocalStrategy   = require('passport-local').Strategy;
 var TwitterStrategy  = require('passport-twitter').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 
+//load the password strength checker and email validator modules
+var owasp = require('owasp-password-strength-test');
+var validator = require('validator');
+
 // load up the user model
 var User       		= require('../app/models/user');
 
@@ -83,6 +87,11 @@ module.exports = function(passport) {
         passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function(req, email, password, done) {
+	
+		//check if email is valid
+		if(!validator.isEmail(email)){
+			return done(null, false, req.flash('signupMessage', 'Please use a valid email!'));
+		}
 
         // asynchronous
         process.nextTick(function() {
@@ -103,12 +112,26 @@ module.exports = function(passport) {
                 if(req.user) {
                     var user            = req.user;
                     user.local.email    = email;
-                    user.local.password = user.generateHash(password);
-                    user.save(function(err) {
-                        if (err)
-                            throw err;
-                        return done(null, user);
-                    });
+					var result = owasp.test(password);
+					
+					//check if we have don't have errors in password strength
+					if(result.errors.length == 0){
+						user.local.password = user.generateHash(password);
+						user.save(function(err) {
+							if (err)
+								throw err;
+							return done(null, user);
+						});
+					}else{
+						error = [];
+						for(x in result.errors){
+							if (x != 'undefined'){
+								error[x] = result.errors[x];
+								console.log(x + result.errors[x]);
+							}
+						}
+						return done(null, false, req.flash('signupMessage', ["Your password isn't secure enough:", error[0], error[1], error[2], error[3]]));
+					}
                 } 
                 //  We're not logged in, so we're creating a brand new user.
                 else {
@@ -116,15 +139,32 @@ module.exports = function(passport) {
                     var newUser            = new User();
 
                     newUser.local.email    = email;
-                    newUser.local.password = newUser.generateHash(password);
-					newUser.date = Date.now();
+					var result = owasp.test(password);
+					console.log(result.errors);
+					
+					//check if we don't have errors in password strength
+					if(result.errors.length == 0){
+					
+						newUser.local.password = newUser.generateHash(password);
+						newUser.date = Date.now();
 
-                    newUser.save(function(err) {
-                        if (err)
-                            throw err;
+						newUser.save(function(err) {
+							if (err)
+								throw err;
 
-                        return done(null, newUser);
-                    });
+							return done(null, newUser);
+						});
+						
+					}else{
+						error = [];
+						for(x in result.errors){
+							if (x != 'undefined'){
+								error[x] = result.errors[x];
+								console.log(x + result.errors[x]);
+							}
+						}
+						return done(null, false, req.flash('signupMessage', ["Your password isn't secure enough:", error[0], error[1], error[2], error[3]]));
+					}
                 }
 
             });

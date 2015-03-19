@@ -25,6 +25,8 @@
     "connect-flash" : "~0.1.1", 	
     "bcrypt-nodejs" : "latest" ,
     "socket.io": "~1.2.0",	
-	"arpad" : "latest"
+	"arpad" : "latest",
+	"owasp-password-strength-test" : "latest",
+	"validator" : "latest"
   }
 }

@@ -58,7 +58,22 @@
 
 	<!-- show any messages that come back with authentication -->
 	<% if (message.length > 0) { %>
-		<div class="alert alert-danger"><%= message %></div>
+		<div class="alert alert-danger">
+		
+		<% if (message[0]) { %>
+			<%= message[0] %></br>
+		<% } %>
+		<% if (message[1]) { %>
+			<%= message[1] %></br>
+		<% } %>
+		<% if (message[2]) { %>
+			<%= message[2] %></br>
+		<% } %>
+		<% if (message[3]) { %>
+			<%= message[3] %></br>
+		<% } %>
+		
+		</div>
 	<% } %>
 
 	<!-- LOGIN FORM -->
